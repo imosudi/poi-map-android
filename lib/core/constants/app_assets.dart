@@ -23,4 +23,3 @@ abstract final class AppAssets {
   // UI
   static const String moreDetailsButton = 'assets/ui/more-details-button.png';
 }
-
