@@ -68,3 +68,4 @@ class PointOfInterest {
     longitude,
   );
 }
+

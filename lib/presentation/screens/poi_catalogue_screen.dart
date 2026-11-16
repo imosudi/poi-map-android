@@ -8,6 +8,7 @@ import '../../core/theme/app_palette.dart';
 import '../../domain/entities/point_of_interest.dart';
 import '../widgets/catalogue_filter_chips.dart';
 import '../widgets/poi_list_tile.dart';
+import 'poi_detail_map_screen.dart';
 
 /// Searchable, filterable, and refreshable Vienna POI catalogue screen.
 class PoiCatalogueScreen extends ConsumerStatefulWidget {
@@ -256,7 +257,20 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
               final place = filtered[index];
               return PoiListTile(
                 place: place,
-                onTap: () => widget.onSelectPlace?.call(place),
+                onTap: () {
+                  if (widget.onSelectPlace != null) {
+                    widget.onSelectPlace!(place);
+                    return;
+                  }
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => PoiDetailMapScreen(
+                        selectedPlace: place,
+                        allPlaces: state.places,
+                      ),
+                    ),
+                  );
+                },
                 trailing: widget.trailingBuilder?.call(place),
               );
             },

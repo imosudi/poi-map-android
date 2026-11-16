@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/copyright_footer.dart';
+import 'all_places_map_screen.dart';
 import 'explore_home_screen.dart';
 
 /// Top-level navigation destinations for Vienna POI Explorer.
@@ -55,8 +56,7 @@ class _HomeShellState extends State<HomeShell> {
                   onOpenMap: () => _selectTab(AppTab.map),
                   onOpenFavourites: () => _selectTab(AppTab.favourites),
                 ),
-            widget.mapBuilder?.call(context) ??
-                const _PlaceholderPane(title: 'Map'),
+            widget.mapBuilder?.call(context) ?? const AllPlacesMapScreen(),
             widget.favouritesBuilder?.call(() => _selectTab(AppTab.explore)) ??
                 const _PlaceholderPane(title: 'Favourites'),
           ],
