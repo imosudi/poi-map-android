@@ -122,4 +122,3 @@ void main() {
     expect(find.text('More information'), findsOneWidget);
   });
 }
-

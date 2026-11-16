@@ -97,4 +97,3 @@ class GeolocatorLocationService implements LocationService {
   @override
   Future<bool> openAppSettings() => Geolocator.openAppSettings();
 }
-

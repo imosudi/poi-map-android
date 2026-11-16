@@ -47,4 +47,3 @@ class CatalogueFilterChips extends StatelessWidget {
     );
   }
 }
-

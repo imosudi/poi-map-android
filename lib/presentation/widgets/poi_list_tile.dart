@@ -82,4 +82,3 @@ class PoiListTile extends StatelessWidget {
     );
   }
 }
-

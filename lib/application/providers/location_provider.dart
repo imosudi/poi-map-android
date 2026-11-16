@@ -60,4 +60,3 @@ class LocationNotifier extends Notifier<LocationState> {
 final locationProvider = NotifierProvider<LocationNotifier, LocationState>(
   LocationNotifier.new,
 );
-

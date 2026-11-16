@@ -24,4 +24,3 @@ class GeoCoordinate {
   @override
   int get hashCode => Object.hash(latitude, longitude);
 }
-

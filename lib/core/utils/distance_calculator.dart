@@ -64,4 +64,3 @@ abstract final class DistanceCalculator {
 
   static double _toRadians(double degrees) => degrees * (math.pi / 180.0);
 }
-

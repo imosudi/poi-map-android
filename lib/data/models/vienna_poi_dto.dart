@@ -105,4 +105,3 @@ abstract final class ViennaPoiParser {
     return null;
   }
 }
-
