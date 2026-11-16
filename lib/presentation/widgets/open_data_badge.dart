@@ -20,4 +20,3 @@ class OpenDataBadge extends StatelessWidget {
     );
   }
 }
-

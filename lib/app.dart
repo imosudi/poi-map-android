@@ -19,4 +19,3 @@ class ViennaPoiExplorerApp extends StatelessWidget {
     );
   }
 }
-

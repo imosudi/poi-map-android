@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/copyright_footer.dart';
+import 'explore_home_screen.dart';
 
 /// Top-level navigation destinations for Vienna POI Explorer.
 enum AppTab { explore, map, favourites }
@@ -50,7 +51,10 @@ class _HomeShellState extends State<HomeShell> {
                   () => _selectTab(AppTab.map),
                   () => _selectTab(AppTab.favourites),
                 ) ??
-                const _PlaceholderPane(title: 'Explore'),
+                ExploreHomeScreen(
+                  onOpenMap: () => _selectTab(AppTab.map),
+                  onOpenFavourites: () => _selectTab(AppTab.favourites),
+                ),
             widget.mapBuilder?.call(context) ??
                 const _PlaceholderPane(title: 'Map'),
             widget.favouritesBuilder?.call(() => _selectTab(AppTab.explore)) ??

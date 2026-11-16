@@ -22,4 +22,3 @@ class CopyrightFooter extends StatelessWidget {
     );
   }
 }
-

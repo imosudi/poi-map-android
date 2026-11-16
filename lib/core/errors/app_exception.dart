@@ -17,4 +17,3 @@ final class PoiDataException extends AppException {
 final class SavedPlacesException extends AppException {
   const SavedPlacesException(super.message);
 }
-
