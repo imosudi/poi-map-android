@@ -91,3 +91,4 @@ class CatalogueNotifier extends Notifier<CatalogueState> {
 final catalogueProvider = NotifierProvider<CatalogueNotifier, CatalogueState>(
   CatalogueNotifier.new,
 );
+

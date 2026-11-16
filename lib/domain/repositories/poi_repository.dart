@@ -4,3 +4,4 @@ import '../entities/point_of_interest.dart';
 abstract interface class PoiRepository {
   Future<List<PointOfInterest>> fetchPointsOfInterest();
 }
+

@@ -13,3 +13,4 @@ class ViennaPoiRepository implements PoiRepository {
     return _service.fetchPointsOfInterest();
   }
 }
+
