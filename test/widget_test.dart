@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:poi_map_android/app.dart';
+import 'package:poi_map_android/app/app.dart';
+import 'package:poi_map_android/app/router.dart';
+import 'package:poi_map_android/app/theme/app_palette.dart';
+import 'package:poi_map_android/app/theme/app_theme.dart';
 import 'package:poi_map_android/core/constants/app_assets.dart';
 
 void main() {
-  testWidgets('HomeShell renders branding assets and attribution footer', (
+  testWidgets('AppShell renders branding assets, attribution, and navigation', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const ProviderScope(child: ViennaPoiExplorerApp()));
 
     expect(find.text('Vienna POI Explorer'), findsOneWidget);
-    expect(find.text('Mosudi Isiaka O., FHTW © 2026'), findsOneWidget);
+    expect(find.text('Mosudi Isiaka O., FHTW © 2026'), findsWidgets);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -31,5 +34,50 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    await tester.tap(find.text('Map'));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+
+    await tester.tap(find.text('Saved'));
+    await tester.pumpAndSettle();
+    expect(find.text('Saved Places'), findsOneWidget);
+  });
+
+  testWidgets('AppRouter handles named routes and unknown route fallback', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          initialRoute: AppRoutes.map,
+          onGenerateRoute: AppRouter.onGenerateRoute,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          key: const ValueKey('unknown-route'),
+          theme: AppTheme.light(),
+          initialRoute: '/non-existent',
+          onGenerateRoute: AppRouter.onGenerateRoute,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Route not found'), findsOneWidget);
+  });
+
+  test('AppTheme.light configures Material 3 palette tokens', () {
+    final theme = AppTheme.light();
+    expect(theme.useMaterial3, isTrue);
+    expect(theme.scaffoldBackgroundColor, AppPalette.canvas);
+    expect(theme.colorScheme.primary, AppPalette.accent);
+    expect(theme.colorScheme.onSurface, AppPalette.ink);
   });
 }
