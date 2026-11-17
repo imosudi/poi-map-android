@@ -1,27 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/theme/app_palette.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
 import '../../../../core/widgets/open_data_badge.dart';
 import '../../domain/entities/poi.dart';
+import '../../domain/services/poi_filter.dart';
 import '../providers/poi_catalogue_provider.dart';
 import '../widgets/poi_list_item.dart';
 
 /// Vienna POI catalogue view.
-class PoiCatalogueScreen extends ConsumerWidget {
+class PoiCatalogueScreen extends ConsumerStatefulWidget {
   const PoiCatalogueScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PoiCatalogueScreen> createState() => _PoiCatalogueScreenState();
+}
+
+class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(poiFilterCriteriaProvider).query,
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final catalogueState = ref.watch(poiCatalogueProvider);
-    final controller = ref.read(poiCatalogueProvider.notifier);
+    final filteredState = ref.watch(filteredPoisProvider);
+    final criteria = ref.watch(poiFilterCriteriaProvider);
+    final categories = ref.watch(availablePoiCategoriesProvider);
+
+    final catalogueController = ref.read(poiCatalogueProvider.notifier);
+    final filterController = ref.read(poiFilterCriteriaProvider.notifier);
+
+    ref.listen<PoiFilterCriteria>(poiFilterCriteriaProvider, (_, next) {
+      if (_searchController.text != next.query) {
+        _searchController.value = TextEditingValue(
+          text: next.query,
+          selection: TextSelection.collapsed(offset: next.query.length),
+        );
+      }
+    });
+
+    final totalCount = catalogueState.asData?.value.length;
+    final filteredCount = filteredState.asData?.value.length;
 
     return SafeArea(
       child: RefreshIndicator(
-        onRefresh: controller.refresh,
+        onRefresh: catalogueController.refresh,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -33,14 +74,42 @@ class PoiCatalogueScreen extends ConsumerWidget {
                 AppSpacing.sm,
               ),
               sliver: SliverToBoxAdapter(
-                child: _CatalogueHeader(
-                  count: catalogueState.asData?.value.length,
-                  isLoading: catalogueState.isLoading,
-                  onRefresh: controller.refresh,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _CatalogueHeader(
+                      totalCount: totalCount,
+                      filteredCount: filteredCount,
+                      hasActiveFilters: criteria.hasActiveFilters,
+                      isLoading: catalogueState.isLoading,
+                      onRefresh: catalogueController.refresh,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _SearchField(
+                      controller: _searchController,
+                      hasQuery: criteria.query.isNotEmpty,
+                      onChanged: filterController.setQuery,
+                      onClear: filterController.clearQuery,
+                    ),
+                    if (categories.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _CategoryFilterBar(
+                        categories: categories,
+                        selectedCategory: criteria.normalizedCategory,
+                        onSelected: filterController.setCategory,
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
-            ..._buildBodySlivers(context, catalogueState, controller.refresh),
+            ..._buildBodySlivers(
+              state: filteredState,
+              totalCount: totalCount ?? 0,
+              hasActiveFilters: criteria.hasActiveFilters,
+              onRetry: catalogueController.refresh,
+              onClearFilters: filterController.clearAll,
+            ),
             const SliverPadding(
               padding: EdgeInsets.fromLTRB(
                 AppSpacing.md,
@@ -64,13 +133,15 @@ class PoiCatalogueScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildBodySlivers(
-    BuildContext context,
-    AsyncValue<List<Poi>> state,
-    VoidCallback onRetry,
-  ) {
+  List<Widget> _buildBodySlivers({
+    required AsyncValue<List<Poi>> state,
+    required int totalCount,
+    required bool hasActiveFilters,
+    required VoidCallback onRetry,
+    required VoidCallback onClearFilters,
+  }) {
     final items = state.asData?.value;
-    if (state.isLoading || state.hasError || items == null || items.isEmpty) {
+    if (state.isLoading || state.hasError || items == null) {
       return [
         SliverFillRemaining(
           hasScrollBody: false,
@@ -82,6 +153,35 @@ class PoiCatalogueScreen extends ConsumerWidget {
             emptyMessage: 'No Vienna sights were found. Try refreshing.',
             onRetry: onRetry,
             builder: (_) => const SizedBox.shrink(),
+          ),
+        ),
+      ];
+    }
+
+    if (items.isEmpty) {
+      if (totalCount > 0 && hasActiveFilters) {
+        return [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: AppEmptyView(
+              icon: Icons.search_off_rounded,
+              title: 'No matching sights',
+              message: 'Try adjusting your search or filter.',
+              actionLabel: 'Clear filters',
+              onAction: onClearFilters,
+            ),
+          ),
+        ];
+      }
+
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: AppEmptyView(
+            title: 'No places available',
+            message: 'No Vienna sights were found. Try refreshing.',
+            actionLabel: 'Refresh',
+            onAction: onRetry,
           ),
         ),
       ];
@@ -104,21 +204,30 @@ class PoiCatalogueScreen extends ConsumerWidget {
 
 class _CatalogueHeader extends StatelessWidget {
   const _CatalogueHeader({
-    required this.count,
+    required this.totalCount,
+    required this.filteredCount,
+    required this.hasActiveFilters,
     required this.isLoading,
     required this.onRefresh,
   });
 
-  final int? count;
+  final int? totalCount;
+  final int? filteredCount;
+  final bool hasActiveFilters;
   final bool isLoading;
   final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final subtitle = count == null
-        ? 'Vienna sights & landmarks'
-        : '$count sights in Vienna';
+    final String subtitle;
+    if (totalCount == null) {
+      subtitle = 'Vienna sights & landmarks';
+    } else if (hasActiveFilters && filteredCount != null) {
+      subtitle = '$filteredCount of $totalCount sights';
+    } else {
+      subtitle = '$totalCount sights in Vienna';
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,6 +287,108 @@ class _CatalogueHeader extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.controller,
+    required this.hasQuery,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final bool hasQuery;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: 'Search sights by name',
+        filled: true,
+        fillColor: AppPalette.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Image.asset(
+            AppAssets.search,
+            width: 20,
+            height: 20,
+            fit: BoxFit.contain,
+            excludeFromSemantics: true,
+          ),
+        ),
+        suffixIcon: hasQuery
+            ? IconButton(
+                tooltip: 'Clear search',
+                onPressed: onClear,
+                icon: const Icon(Icons.close_rounded),
+              )
+            : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppPalette.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppPalette.divider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppPalette.accent, width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryFilterBar extends StatelessWidget {
+  const _CategoryFilterBar({
+    required this.categories,
+    required this.selectedCategory,
+    required this.onSelected,
+  });
+
+  final List<String> categories;
+  final String? selectedCategory;
+  final ValueChanged<String?> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: ChoiceChip(
+              label: const Text('All'),
+              selected: selectedCategory == null,
+              onSelected: (_) => onSelected(null),
+            ),
+          ),
+          for (final category in categories)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: ChoiceChip(
+                label: Text(category),
+                selected: selectedCategory == category,
+                onSelected: (selected) =>
+                    onSelected(selected ? category : null),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

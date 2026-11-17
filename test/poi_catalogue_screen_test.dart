@@ -152,4 +152,59 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(PoiListItem), findsOneWidget);
   });
+
+  testWidgets('searches, filters by category, clears, and shows no-results', (
+    WidgetTester tester,
+  ) async {
+    final repo = _QueuedPoiRepository([
+      () async => const [
+        Poi(
+          id: '1',
+          name: 'Stephansdom',
+          category: 'Landmark',
+          latitude: 48.2085,
+          longitude: 16.3731,
+        ),
+        Poi(
+          id: '2',
+          name: 'Kunsthistorisches Museum',
+          category: 'Museum',
+          latitude: 48.2038,
+          longitude: 16.3614,
+        ),
+      ],
+    ]);
+
+    await tester.pumpWidget(_wrapScreen(repo));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PoiListItem), findsNWidgets(2));
+    expect(find.text('Landmark'), findsNWidgets(2));
+    expect(find.text('Museum'), findsNWidgets(2));
+
+    await tester.enterText(find.byType(TextField), '  stephans ');
+    await tester.pumpAndSettle();
+    expect(find.byType(PoiListItem), findsOneWidget);
+    expect(find.text('Stephansdom'), findsOneWidget);
+    expect(find.text('1 of 2 sights'), findsOneWidget);
+    expect(repo.callCount, 1);
+
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PoiListItem), findsNWidgets(2));
+
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Museum'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PoiListItem), findsOneWidget);
+    expect(find.text('Kunsthistorisches Museum'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'stephans');
+    await tester.pumpAndSettle();
+    expect(find.text('No matching sights'), findsOneWidget);
+
+    await tester.tap(find.text('Clear filters'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PoiListItem), findsNWidgets(2));
+    expect(repo.callCount, 1);
+  });
 }

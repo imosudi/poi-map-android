@@ -53,6 +53,18 @@ class PoiListItem extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    if (poi.category != null && poi.category!.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        poi.category!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: AppPalette.accent,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                     if (poi.address != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Row(

@@ -5,6 +5,7 @@ final class Poi {
     required this.name,
     required this.latitude,
     required this.longitude,
+    this.category,
     this.address,
     this.infoUrl,
     this.thumbnailUrl,
@@ -16,6 +17,9 @@ final class Poi {
 
   /// Display name of the sight or landmark.
   final String name;
+
+  /// Optional category label when supplied by the dataset.
+  final String? category;
 
   /// WGS84 latitude in decimal degrees.
   final double latitude;
@@ -53,6 +57,7 @@ final class Poi {
     return other is Poi &&
         other.id == id &&
         other.name == name &&
+        other.category == category &&
         other.latitude == latitude &&
         other.longitude == longitude &&
         other.address == address &&
@@ -65,6 +70,7 @@ final class Poi {
   int get hashCode => Object.hash(
     id,
     name,
+    category,
     latitude,
     longitude,
     address,
