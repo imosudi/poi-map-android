@@ -6,12 +6,39 @@ import 'package:poi_map_android/app/router.dart';
 import 'package:poi_map_android/app/theme/app_palette.dart';
 import 'package:poi_map_android/app/theme/app_theme.dart';
 import 'package:poi_map_android/core/constants/app_assets.dart';
+import 'package:poi_map_android/core/network/cancellation_token.dart';
+import 'package:poi_map_android/features/poi/data/poi_providers.dart';
+import 'package:poi_map_android/features/poi/domain/entities/poi.dart';
+import 'package:poi_map_android/features/poi/domain/repositories/poi_repository.dart';
+
+final class _FakePoiRepository implements PoiRepository {
+  @override
+  Future<List<Poi>> fetchPois({CancellationToken? cancelToken}) async {
+    return const [
+      Poi(
+        id: 'SEHENSWUERDIGOGD.1',
+        name: 'Ankeruhr',
+        latitude: 48.21076,
+        longitude: 16.37368,
+        address: 'Hoher Markt 10/',
+      ),
+    ];
+  }
+}
 
 void main() {
   testWidgets('AppShell renders branding assets, attribution, and navigation', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const ProviderScope(child: ViennaPoiExplorerApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          poiRepositoryProvider.overrideWithValue(_FakePoiRepository()),
+        ],
+        child: const ViennaPoiExplorerApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
 
     expect(find.text('Vienna POI Explorer'), findsOneWidget);
     expect(find.text('Mosudi Isiaka O., FHTW © 2026'), findsWidgets);
