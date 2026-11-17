@@ -37,17 +37,11 @@ void main() {
 
     await tester.tap(find.text('Map'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Interactive Vienna map view will appear here.'),
-      findsOneWidget,
-    );
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
 
     await tester.tap(find.text('Saved'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Your saved Vienna places will appear here.'),
-      findsOneWidget,
-    );
+    expect(find.text('Saved Places'), findsOneWidget);
   });
 
   testWidgets('AppRouter handles named routes and unknown route fallback', (
@@ -63,10 +57,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(
-      find.text('Interactive Vienna map view will appear here.'),
-      findsOneWidget,
-    );
+    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
 
     await tester.pumpWidget(
       ProviderScope(

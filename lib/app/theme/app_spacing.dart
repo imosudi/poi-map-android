@@ -10,4 +10,3 @@ abstract final class AppSpacing {
   static const double bannerRadius = 20;
   static const double chipRadius = 24;
 }
-

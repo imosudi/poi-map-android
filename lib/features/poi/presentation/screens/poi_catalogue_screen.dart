@@ -4,7 +4,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/widgets/copyright_footer.dart';
 import '../../../../core/widgets/open_data_badge.dart';
 
-/// Primary landing view for the Vienna POI catalogue feature.
+/// Vienna POI catalogue view.
 class PoiCatalogueScreen extends StatelessWidget {
   const PoiCatalogueScreen({super.key});
 

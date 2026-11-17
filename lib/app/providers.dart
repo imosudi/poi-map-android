@@ -22,4 +22,3 @@ final errorHandlerProvider = Provider<ErrorHandler>((ref) {
   final logger = ref.watch(appLoggerProvider);
   return ErrorHandler(logger);
 });
-

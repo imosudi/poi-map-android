@@ -25,4 +25,3 @@ class ViennaPoiExplorerApp extends ConsumerWidget {
     );
   }
 }
-

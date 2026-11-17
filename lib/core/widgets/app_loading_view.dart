@@ -32,4 +32,3 @@ class AppLoadingView extends StatelessWidget {
     );
   }
 }
-

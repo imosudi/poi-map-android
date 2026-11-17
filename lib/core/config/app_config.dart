@@ -39,4 +39,3 @@ final class AppConfig {
   final Duration requestTimeout;
   final bool enableVerboseLogging;
 }
-

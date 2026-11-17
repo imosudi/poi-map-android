@@ -45,4 +45,3 @@ extension AsyncValueStateX<T> on AsyncValue<T> {
     return 'Something went wrong. Please try again.';
   }
 }
-
