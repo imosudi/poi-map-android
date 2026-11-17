@@ -5,7 +5,7 @@ import '../../core/theme/app_palette.dart';
 import '../widgets/copyright_footer.dart';
 import '../widgets/open_data_badge.dart';
 
-/// Root foundation shell for Vienna POI Explorer.
+/// Root shell for Vienna POI Explorer.
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key});
 
@@ -32,13 +32,6 @@ class HomeShell extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppPalette.ink,
                   fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Android project foundation',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppPalette.inkSecondary,
                 ),
               ),
               const Spacer(),
