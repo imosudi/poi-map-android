@@ -13,10 +13,7 @@ class MapScreen extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: AppEmptyView(
-              icon: Icons.map_outlined,
-              title: 'Map',
-            ),
+            child: AppEmptyView(icon: Icons.map_outlined, title: 'Map'),
           ),
           CopyrightFooter(),
         ],
@@ -24,4 +21,3 @@ class MapScreen extends StatelessWidget {
     );
   }
 }
-
