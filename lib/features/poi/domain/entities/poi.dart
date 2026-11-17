@@ -77,4 +77,3 @@ final class Poi {
   String toString() =>
       'Poi(id: $id, name: $name, lat: $latitude, lon: $longitude)';
 }
-

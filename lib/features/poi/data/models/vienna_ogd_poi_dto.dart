@@ -262,4 +262,3 @@ String _fnv1a64Hex(String input) {
   }
   return hash.toRadixString(16).padLeft(16, '0');
 }
-

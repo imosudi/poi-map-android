@@ -19,6 +19,13 @@ final class ErrorHandler {
     }
 
     if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      if (statusCode != null && (statusCode < 200 || statusCode >= 300)) {
+        return NetworkException(
+          'The server returned an unexpected response ($statusCode).',
+          cause: error,
+        );
+      }
       return switch (error.type) {
         DioExceptionType.connectionTimeout ||
         DioExceptionType.sendTimeout ||
@@ -31,6 +38,11 @@ final class ErrorHandler {
           'The server returned an unexpected response (${error.response?.statusCode ?? 'unknown'}).',
           cause: error,
         ),
+        DioExceptionType.unknown when error.error is FormatException =>
+          PoiDataException(
+            'Received malformed data from the service.',
+            cause: error,
+          ),
         _ => NetworkException(
           'A network error occurred. Please try again.',
           cause: error,
