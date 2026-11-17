@@ -14,3 +14,4 @@ abstract final class AppPalette {
   static const Color warning = Color(0xFFF9A825);
   static const Color neutral = Color(0xFF9EA7B3);
 }
+

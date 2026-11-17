@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_assets.dart';
+import '../constants/app_assets.dart';
 
 /// Displays the City of Vienna Open Government Data attribution badge.
 class OpenDataBadge extends StatelessWidget {
@@ -20,3 +20,4 @@ class OpenDataBadge extends StatelessWidget {
     );
   }
 }
+

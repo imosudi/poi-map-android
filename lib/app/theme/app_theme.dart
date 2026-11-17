@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_palette.dart';
+import 'app_spacing.dart';
 
 /// Material 3 theme configuration for Vienna POI Explorer.
 abstract final class AppTheme {
@@ -14,9 +15,11 @@ abstract final class AppTheme {
       onSecondary: Colors.white,
       surface: AppPalette.surface,
       onSurface: AppPalette.ink,
+      onSurfaceVariant: AppPalette.inkSecondary,
       surfaceContainerLowest: AppPalette.canvas,
       surfaceContainerLow: AppPalette.surface,
       surfaceContainer: AppPalette.surfaceVariant,
+      outlineVariant: AppPalette.divider,
     );
 
     return ThemeData(
@@ -39,7 +42,7 @@ abstract final class AppTheme {
         color: AppPalette.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           side: const BorderSide(color: AppPalette.divider, width: 0.8),
         ),
       ),
@@ -73,7 +76,27 @@ abstract final class AppTheme {
           fontWeight: FontWeight.w600,
         ),
         side: const BorderSide(color: AppPalette.divider),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.chipRadius),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppPalette.accent,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppPalette.ink,
+          side: const BorderSide(color: AppPalette.divider),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppPalette.divider,
@@ -83,3 +106,4 @@ abstract final class AppTheme {
     );
   }
 }
+
