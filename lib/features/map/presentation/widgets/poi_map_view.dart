@@ -8,6 +8,8 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../domain/map_camera_calculator.dart';
+import '../mappers/poi_marker_builder.dart';
+import 'selected_poi_card.dart';
 
 typedef GoogleMapWidgetBuilder =
     Widget Function(
@@ -17,17 +19,22 @@ typedef GoogleMapWidgetBuilder =
       void Function(GoogleMapController controller) onMapCreated,
     );
 
-/// Reusable interactive map component ready to display Vienna POI markers.
+/// Reusable interactive map component displaying Vienna POI markers and
+/// selection details.
 class PoiMapView extends StatefulWidget {
   const PoiMapView({
     super.key,
     required this.pois,
-    this.markers = const {},
+    this.selectedPoi,
+    this.onPoiSelected,
+    this.onClearSelection,
     this.mapBuilder,
   });
 
   final List<Poi> pois;
-  final Set<Marker> markers;
+  final Poi? selectedPoi;
+  final ValueChanged<Poi>? onPoiSelected;
+  final VoidCallback? onClearSelection;
   final GoogleMapWidgetBuilder? mapBuilder;
 
   @override
@@ -35,9 +42,20 @@ class PoiMapView extends StatefulWidget {
 }
 
 class _PoiMapViewState extends State<PoiMapView> {
+  static const double _selectedPoiZoom = 15.0;
+
   GoogleMapController? _controller;
   bool _isMapReady = false;
   String? _mapError;
+
+  @override
+  void didUpdateWidget(covariant PoiMapView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final selected = widget.selectedPoi;
+    if (selected != null && selected.id != oldWidget.selectedPoi?.id) {
+      _focusOnPoi(selected);
+    }
+  }
 
   @override
   void dispose() {
@@ -56,7 +74,32 @@ class _PoiMapViewState extends State<PoiMapView> {
       _mapError = null;
     });
 
-    await _fitDatasetBounds(controller);
+    final selected = widget.selectedPoi;
+    if (selected != null) {
+      await _focusOnPoi(selected);
+    } else {
+      await _fitDatasetBounds(controller);
+    }
+  }
+
+  Future<void> _focusOnPoi(Poi poi) async {
+    final controller = _controller;
+    if (controller == null ||
+        !Poi.isValidCoordinate(poi.latitude, poi.longitude)) {
+      return;
+    }
+    try {
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(poi.latitude, poi.longitude),
+            zoom: _selectedPoiZoom,
+          ),
+        ),
+      );
+    } catch (_) {
+      // Camera animation failures are non-fatal when selecting a marker.
+    }
   }
 
   Future<void> _fitDatasetBounds(GoogleMapController controller) async {
@@ -130,18 +173,19 @@ class _PoiMapViewState extends State<PoiMapView> {
       target: LatLng(spec.latitude, spec.longitude),
       zoom: spec.zoom,
     );
+    final markers = PoiMarkerBuilder.build(
+      pois: widget.pois,
+      selectedPoiId: widget.selectedPoi?.id,
+      onSelect: widget.onPoiSelected,
+    );
 
     final mapWidget = widget.mapBuilder != null
-        ? widget.mapBuilder!(
-            context,
-            initialPosition,
-            widget.markers,
-            _onMapCreated,
-          )
+        ? widget.mapBuilder!(context, initialPosition, markers, _onMapCreated)
         : GoogleMap(
             initialCameraPosition: initialPosition,
-            markers: widget.markers,
+            markers: markers,
             onMapCreated: _onMapCreated,
+            onTap: (_) => widget.onClearSelection?.call(),
             zoomGesturesEnabled: true,
             scrollGesturesEnabled: true,
             rotateGesturesEnabled: true,
@@ -151,6 +195,8 @@ class _PoiMapViewState extends State<PoiMapView> {
             mapToolbarEnabled: false,
             myLocationButtonEnabled: false,
           );
+
+    final selectedPoi = widget.selectedPoi;
 
     return Stack(
       children: [
@@ -179,6 +225,17 @@ class _PoiMapViewState extends State<PoiMapView> {
                 fit: BoxFit.contain,
                 excludeFromSemantics: true,
               ),
+            ),
+          ),
+        if (selectedPoi != null)
+          Positioned(
+            left: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.md,
+            child: SelectedPoiCard(
+              key: ValueKey(selectedPoi.id),
+              poi: selectedPoi,
+              onDismiss: () => widget.onClearSelection?.call(),
             ),
           ),
       ],

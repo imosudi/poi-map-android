@@ -23,6 +23,8 @@ class MapScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final apiKeyState = ref.watch(mapApiKeyConfiguredProvider);
     final catalogueState = ref.watch(poiCatalogueProvider);
+    final selectedPoi = ref.watch(selectedMapPoiProvider);
+    final selectionController = ref.read(selectedPoiIdProvider.notifier);
 
     return SafeArea(
       child: Column(
@@ -82,8 +84,13 @@ class MapScreen extends ConsumerWidget {
                   loadingMessage: 'Loading Vienna map...',
                   onRetry: () =>
                       ref.read(poiCatalogueProvider.notifier).refresh(),
-                  builder: (pois) =>
-                      PoiMapView(pois: pois, mapBuilder: mapBuilder),
+                  builder: (pois) => PoiMapView(
+                    pois: pois,
+                    selectedPoi: selectedPoi,
+                    onPoiSelected: (poi) => selectionController.select(poi.id),
+                    onClearSelection: selectionController.clear,
+                    mapBuilder: mapBuilder,
+                  ),
                 );
               },
             ),
