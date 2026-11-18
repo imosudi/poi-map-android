@@ -7,6 +7,7 @@ import 'package:poi_map_android/app/theme/app_palette.dart';
 import 'package:poi_map_android/app/theme/app_theme.dart';
 import 'package:poi_map_android/core/constants/app_assets.dart';
 import 'package:poi_map_android/core/network/cancellation_token.dart';
+import 'package:poi_map_android/features/map/presentation/providers/map_providers.dart';
 import 'package:poi_map_android/features/poi/data/poi_providers.dart';
 import 'package:poi_map_android/features/poi/domain/entities/poi.dart';
 import 'package:poi_map_android/features/poi/domain/repositories/poi_repository.dart';
@@ -34,6 +35,7 @@ void main() {
       ProviderScope(
         overrides: [
           poiRepositoryProvider.overrideWithValue(_FakePoiRepository()),
+          mapApiKeyConfiguredProvider.overrideWith((_) => false),
         ],
         child: const ViennaPoiExplorerApp(),
       ),
@@ -64,7 +66,7 @@ void main() {
 
     await tester.tap(find.text('Map'));
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+    expect(find.text('Vienna Map'), findsOneWidget);
 
     await tester.tap(find.text('Saved'));
     await tester.pumpAndSettle();
@@ -76,6 +78,10 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          poiRepositoryProvider.overrideWithValue(_FakePoiRepository()),
+          mapApiKeyConfiguredProvider.overrideWith((_) => false),
+        ],
         child: MaterialApp(
           theme: AppTheme.light(),
           initialRoute: AppRoutes.map,
@@ -84,10 +90,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.map_outlined), findsOneWidget);
+    expect(find.text('Vienna Map'), findsOneWidget);
 
     await tester.pumpWidget(
       ProviderScope(
+        key: const ValueKey('unknown-route-scope'),
         child: MaterialApp(
           key: const ValueKey('unknown-route'),
           theme: AppTheme.light(),
