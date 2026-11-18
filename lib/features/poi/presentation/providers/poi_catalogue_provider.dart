@@ -1,9 +1,53 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/app_exception.dart';
 import '../../../../core/network/cancellation_token.dart';
 import '../../data/poi_providers.dart';
 import '../../domain/entities/poi.dart';
 import '../../domain/services/poi_filter.dart';
+
+/// Tracks background refresh status without discarding loaded catalogue data.
+final class PoiRefreshStatus {
+  const PoiRefreshStatus({this.isRefreshing = false, this.errorMessage});
+
+  final bool isRefreshing;
+  final String? errorMessage;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is PoiRefreshStatus &&
+        other.isRefreshing == isRefreshing &&
+        other.errorMessage == errorMessage;
+  }
+
+  @override
+  int get hashCode => Object.hash(isRefreshing, errorMessage);
+}
+
+final poiRefreshStatusProvider =
+    NotifierProvider<PoiRefreshStatusController, PoiRefreshStatus>(
+      PoiRefreshStatusController.new,
+    );
+
+final class PoiRefreshStatusController extends Notifier<PoiRefreshStatus> {
+  @override
+  PoiRefreshStatus build() => const PoiRefreshStatus();
+
+  void start() {
+    state = const PoiRefreshStatus(isRefreshing: true);
+  }
+
+  void succeed() {
+    state = const PoiRefreshStatus();
+  }
+
+  void fail(String message) {
+    state = PoiRefreshStatus(isRefreshing: false, errorMessage: message);
+  }
+}
 
 /// Manages asynchronous loading and refreshing of the original POI dataset.
 final poiCatalogueProvider =
@@ -14,6 +58,7 @@ final poiCatalogueProvider =
 
 final class PoiCatalogueController extends AsyncNotifier<List<Poi>> {
   CancellationToken? _activeCancelToken;
+  Future<void>? _inFlightRefresh;
 
   @override
   Future<List<Poi>> build() {
@@ -21,10 +66,53 @@ final class PoiCatalogueController extends AsyncNotifier<List<Poi>> {
     return _fetchWithToken();
   }
 
-  /// Reloads the POI list from the repository while preserving filter state.
-  Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(_fetchWithToken);
+  /// Refreshes the POI dataset while preventing duplicate concurrent requests
+  /// and preserving previously loaded data if the refresh fails.
+  Future<void> refresh() {
+    if (_inFlightRefresh != null) {
+      return _inFlightRefresh!;
+    }
+
+    final future = _performRefresh();
+    _inFlightRefresh = future;
+    return future.whenComplete(() {
+      if (identical(_inFlightRefresh, future)) {
+        _inFlightRefresh = null;
+      }
+    });
+  }
+
+  Future<void> _performRefresh() async {
+    final existing = state.asData?.value;
+    if (existing == null) {
+      state = const AsyncValue.loading();
+      final result = await AsyncValue.guard(_fetchWithToken);
+      if (!ref.mounted) {
+        return;
+      }
+      state = result;
+      return;
+    }
+
+    final refreshStatus = ref.read(poiRefreshStatusProvider.notifier);
+    refreshStatus.start();
+
+    try {
+      final fresh = await _fetchWithToken();
+      if (!ref.mounted) {
+        return;
+      }
+      state = AsyncValue.data(fresh);
+      refreshStatus.succeed();
+    } catch (error) {
+      if (!ref.mounted) {
+        return;
+      }
+      final message = error is AppException
+          ? error.message
+          : 'Unable to refresh sights. Please try again.';
+      refreshStatus.fail(message);
+    }
   }
 
   Future<List<Poi>> _fetchWithToken() {

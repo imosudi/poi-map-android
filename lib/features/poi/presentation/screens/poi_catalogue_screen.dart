@@ -44,6 +44,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
     final filteredState = ref.watch(filteredPoisProvider);
     final criteria = ref.watch(poiFilterCriteriaProvider);
     final categories = ref.watch(availablePoiCategoriesProvider);
+    final refreshStatus = ref.watch(poiRefreshStatusProvider);
 
     final catalogueController = ref.read(poiCatalogueProvider.notifier);
     final filterController = ref.read(poiFilterCriteriaProvider.notifier);
@@ -57,8 +58,18 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
       }
     });
 
+    ref.listen<PoiRefreshStatus>(poiRefreshStatusProvider, (previous, next) {
+      final message = next.errorMessage;
+      if (message != null && message != previous?.errorMessage) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
+
     final totalCount = catalogueState.asData?.value.length;
     final filteredCount = filteredState.asData?.value.length;
+    final isBusy = catalogueState.isLoading || refreshStatus.isRefreshing;
 
     return SafeArea(
       child: RefreshIndicator(
@@ -81,9 +92,13 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
                       totalCount: totalCount,
                       filteredCount: filteredCount,
                       hasActiveFilters: criteria.hasActiveFilters,
-                      isLoading: catalogueState.isLoading,
+                      isBusy: isBusy,
                       onRefresh: catalogueController.refresh,
                     ),
+                    if (refreshStatus.isRefreshing) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      const LinearProgressIndicator(),
+                    ],
                     const SizedBox(height: AppSpacing.md),
                     _SearchField(
                       controller: _searchController,
@@ -207,14 +222,14 @@ class _CatalogueHeader extends StatelessWidget {
     required this.totalCount,
     required this.filteredCount,
     required this.hasActiveFilters,
-    required this.isLoading,
+    required this.isBusy,
     required this.onRefresh,
   });
 
   final int? totalCount;
   final int? filteredCount;
   final bool hasActiveFilters;
-  final bool isLoading;
+  final bool isBusy;
   final VoidCallback onRefresh;
 
   @override
@@ -275,7 +290,7 @@ class _CatalogueHeader extends StatelessWidget {
             ),
             IconButton(
               tooltip: 'Refresh',
-              onPressed: isLoading ? null : onRefresh,
+              onPressed: isBusy ? null : onRefresh,
               icon: Image.asset(
                 AppAssets.refresh,
                 width: 24,
