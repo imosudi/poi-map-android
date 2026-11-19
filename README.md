@@ -1,50 +1,64 @@
 # Vienna POI Explorer (`poi-map-android`)
 
-A Flutter-based Android application for discovering Points of Interest (POIs) in Vienna, Austria, using Vienna Open Government Data (OGD).
+A Flutter-based Android application for discovering Points of Interest (POIs) in Vienna, Austria, powered by Vienna Open Government Data (`ogdwien:SEHENSWUERDIGOGD`).
 
-## Features
+## Capabilities
 
-- Searchable and filterable Vienna POI catalogue (`ogdwien:SEHENSWUERDIGOGD`).
-- Interactive Google Maps view with location-aware distance calculation.
-- Persistent favourite places.
+- **Vienna POI Catalogue**: Loads 63 Vienna sights on startup with lazy scrolling, case-insensitive name search, category chips, pull-to-refresh, and failure-safe refresh preservation.
+- **Interactive Android Map**: Google Maps integration with category-styled markers, marker legend, single-selection detail card, foreground-only user location, and straight-line metric distance calculation.
+- **Persistent Saved Places**: Local persistence (`SharedPreferences`) with duplicate prevention, offline snapshot fallback, synchronised state across all views, and confirmation-guarded individual removal.
 
-## Prerequisites
+## Technology Stack
 
-- Flutter SDK (`3.32.x` or later) and Dart SDK (`3.8.x` or later).
-- Android SDK (`ANDROID_HOME` configured) and Java Development Kit (JDK 11+).
-- A Google Maps API key with **Maps SDK for Android** enabled.
+- **Framework**: Flutter `3.32.7` / Dart `3.8.1` (Material 3)
+- **State Management**: `flutter_riverpod`
+- **Networking**: `dio` (WFS GeoJSON retrieval with timeouts and cancellation)
+- **Maps & Location**: `google_maps_flutter`, `geolocator`
+- **Local Persistence**: `shared_preferences`
 
-## Configuration
+## Architecture
 
-Add your Google Maps API key to `android/local.properties` (ignored by Git):
+- `lib/app/`: Application bootstrap, Riverpod root providers, named routing (`AppRouter`), navigation shell (`AppShell`), and Material 3 theme tokens.
+- `lib/core/`: Environment configuration, structured redacting logger, centralised `ErrorHandler` / `AppException`, `DioFactory`, `CancellationToken`, and shared state views.
+- `lib/features/poi/`, `lib/features/map/`, `lib/features/favourites/`: Layered `domain/`, `data/`, and `presentation/` modules with no cross-feature coupling.
+
+See [Architecture](docs/architecture.md) and [Application Features](docs/application-features.md) for details.
+
+## Data Source, Branding & Licensing
+
+- **Data Source**: City of Vienna Open Government Data WFS (`ogdwien:SEHENSWUERDIGOGD`, EPSG:4326 GeoJSON, CC BY 4.0). See [Data Source](docs/data-source.md).
+- **Branding**: Uses supplied Vienna POI Explorer assets in `assets/branding/`, `assets/icons/`, `assets/markers/`, and `assets/ui/` with a `#FAF7F2` / `#14264A` / `#D10A29` Material 3 palette. See [Branding Guide](docs/branding-guide.md).
+- **Permissions**: Requests `INTERNET`, `ACCESS_FINE_LOCATION`, and `ACCESS_COARSE_LOCATION` for foreground positioning only (no background location tracking).
+
+## Prerequisites & Configuration
+
+- Flutter SDK `3.32.7+`, Dart `3.8.1+`, Android SDK (`ANDROID_HOME`), and JDK 11+.
+- Add your Google Maps API key to `android/local.properties` (excluded from Git):
 
 ```properties
 MAPS_API_KEY=your_google_maps_api_key
 ```
 
-Alternatively, export `MAPS_API_KEY` as an environment variable before building.
+See [Development Guide](docs/development-guide.md) and [Android Configuration](docs/android-configuration.md).
 
-## Architecture
-
-The codebase under `lib/` is organised into clear layer and feature boundaries:
-
-- `lib/app/`: Application bootstrap (`bootstrap.dart`), Riverpod root providers (`providers.dart`), named routing and navigation shell (`router.dart`), Material 3 theme tokens (`theme/`), and root widget (`app.dart`).
-- `lib/core/`: Shared, feature-agnostic infrastructure including environment configuration (`config/`), asset paths (`constants/`), exception hierarchy and error mapping (`errors/`), structured redacting logger (`logging/`), shared async state helpers (`state/`), and reusable UI states and attribution widgets (`widgets/`).
-- `lib/features/poi/`: Vienna POI catalogue feature (`domain/`, `data/`, `presentation/`).
-- `lib/features/map/`: Reserved for interactive map functionality (`presentation/`).
-- `lib/features/favourites/`: Reserved for saved places functionality (`presentation/`).
-
-Dependency direction: `app` wires `core` and `features`; `features` depend on `core` (and theme via `Theme.of(context)`) without cross-feature imports; `core` has no dependencies on `app` or `features`.
-
-## Common Commands
+## Running, Testing & Building
 
 ```bash
 flutter pub get
-dart format lib test
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
-flutter build apk --debug
+flutter run
+flutter build apk --release
 ```
+
+See [Testing Guide](docs/testing-guide.md) and [Release Guide](docs/release-guide.md).
+
+## Known Limitations
+
+- `ogdwien:SEHENSWUERDIGOGD` does not provide a category attribute, so sight categories are derived from names via `PoiCategoryClassifier`.
+- Release builds currently use the debug signing config in `android/app/build.gradle.kts` until a production keystore is configured.
+- `integration_test/` is not yet populated; end-to-end flows are verified via offline widget tests.
 
 ## Licence
 
