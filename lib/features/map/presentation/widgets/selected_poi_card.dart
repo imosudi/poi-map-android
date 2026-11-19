@@ -12,12 +12,16 @@ class SelectedPoiCard extends StatelessWidget {
     required this.poi,
     required this.onDismiss,
     this.distanceLabel,
+    this.isSaved = false,
+    this.onSave,
     this.onRequestLocation,
   });
 
   final Poi poi;
   final VoidCallback onDismiss;
   final String? distanceLabel;
+  final bool isSaved;
+  final VoidCallback? onSave;
   final VoidCallback? onRequestLocation;
 
   @override
@@ -159,6 +163,50 @@ class SelectedPoiCard extends StatelessWidget {
                       ],
                     ),
                   ],
+                  const SizedBox(height: AppSpacing.sm),
+                  if (isSaved)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppPalette.accentSoft,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            AppAssets.favouriteStar,
+                            width: 14,
+                            height: 14,
+                            fit: BoxFit.contain,
+                            excludeFromSemantics: true,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            'Saved to places',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppPalette.accent,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (onSave != null)
+                    OutlinedButton.icon(
+                      onPressed: onSave,
+                      icon: Image.asset(
+                        AppAssets.favouriteStar,
+                        width: 16,
+                        height: 16,
+                        fit: BoxFit.contain,
+                        excludeFromSemantics: true,
+                      ),
+                      label: const Text('Save place'),
+                    ),
                 ],
               ),
             ),

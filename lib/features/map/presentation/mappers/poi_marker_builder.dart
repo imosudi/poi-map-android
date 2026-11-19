@@ -12,6 +12,7 @@ abstract final class PoiMarkerBuilder {
   static Set<Marker> build({
     required Iterable<Poi> pois,
     String? selectedPoiId,
+    Set<String> savedPoiIds = const {},
     Map<PoiMarkerCategory, BitmapDescriptor> iconCache = const {},
     void Function(Poi poi)? onSelect,
   }) {
@@ -27,7 +28,10 @@ abstract final class PoiMarkerBuilder {
       }
 
       final isSelected = poi.id == selectedPoiId;
-      final category = PoiMarkerStyleResolver.resolve(poi.category);
+      final isSaved = savedPoiIds.contains(poi.id);
+      final category = isSaved
+          ? PoiMarkerCategory.favourite
+          : PoiMarkerStyleResolver.resolve(poi.category);
       final icon =
           iconCache[category] ??
           BitmapDescriptor.defaultMarkerWithHue(

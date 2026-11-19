@@ -7,9 +7,17 @@ import '../../domain/entities/poi.dart';
 
 /// Reusable card representing a single Point of Interest in the catalogue.
 class PoiListItem extends StatelessWidget {
-  const PoiListItem({super.key, required this.poi, this.onTap});
+  const PoiListItem({
+    super.key,
+    required this.poi,
+    this.isSaved = false,
+    this.onSave,
+    this.onTap,
+  });
 
   final Poi poi;
+  final bool isSaved;
+  final VoidCallback? onSave;
   final VoidCallback? onTap;
 
   @override
@@ -93,8 +101,51 @@ class PoiListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              if (onTap != null) ...[
+              if (isSaved) ...[
                 const SizedBox(width: AppSpacing.sm),
+                Semantics(
+                  label: 'Saved place',
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppPalette.accentSoft,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          AppAssets.favouriteStar,
+                          width: 14,
+                          height: 14,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          'Saved',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppPalette.accent,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ] else if (onSave != null) ...[
+                const SizedBox(width: AppSpacing.xs),
+                IconButton(
+                  tooltip: 'Save place',
+                  onPressed: onSave,
+                  icon: const Icon(Icons.star_outline_rounded),
+                ),
+              ],
+              if (onTap != null) ...[
+                const SizedBox(width: AppSpacing.xs),
                 Icon(
                   Icons.chevron_right_rounded,
                   color: theme.colorScheme.onSurfaceVariant,

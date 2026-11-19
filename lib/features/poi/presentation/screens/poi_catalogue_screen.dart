@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
 import '../../../../core/widgets/open_data_badge.dart';
+import '../../../favourites/presentation/providers/favourites_provider.dart';
 import '../../domain/entities/poi.dart';
 import '../../domain/services/poi_filter.dart';
 import '../providers/poi_catalogue_provider.dart';
@@ -45,9 +46,11 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
     final criteria = ref.watch(poiFilterCriteriaProvider);
     final categories = ref.watch(availablePoiCategoriesProvider);
     final refreshStatus = ref.watch(poiRefreshStatusProvider);
+    final savedPoiIds = ref.watch(savedPoiIdsProvider);
 
     final catalogueController = ref.read(poiCatalogueProvider.notifier);
     final filterController = ref.read(poiFilterCriteriaProvider.notifier);
+    final favouritesController = ref.read(favouritesProvider.notifier);
 
     ref.listen<PoiFilterCriteria>(poiFilterCriteriaProvider, (_, next) {
       if (_searchController.text != next.query) {
@@ -64,6 +67,15 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text(message)));
+      }
+    });
+
+    ref.listen<String?>(favouritesFeedbackProvider, (previous, next) {
+      if (next != null && next != previous) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(next)));
+        ref.read(favouritesFeedbackProvider.notifier).clear();
       }
     });
 
@@ -122,6 +134,8 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
               state: filteredState,
               totalCount: totalCount ?? 0,
               hasActiveFilters: criteria.hasActiveFilters,
+              savedPoiIds: savedPoiIds,
+              onSavePoi: favouritesController.savePoi,
               onRetry: catalogueController.refresh,
               onClearFilters: filterController.clearAll,
             ),
@@ -152,6 +166,8 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
     required AsyncValue<List<Poi>> state,
     required int totalCount,
     required bool hasActiveFilters,
+    required Set<String> savedPoiIds,
+    required ValueChanged<Poi> onSavePoi,
     required VoidCallback onRetry,
     required VoidCallback onClearFilters,
   }) {
@@ -209,7 +225,12 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
           itemCount: items.length,
           separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, index) {
-            return PoiListItem(poi: items[index]);
+            final poi = items[index];
+            return PoiListItem(
+              poi: poi,
+              isSaved: savedPoiIds.contains(poi.id),
+              onSave: () => onSavePoi(poi),
+            );
           },
         ),
       ),
