@@ -232,5 +232,48 @@ void main() {
       expect(fallbackA!.id, startsWith('poi_'));
       expect(fallbackA.id, fallbackB!.id);
     });
+
+    test('classifies Vienna OGD sight names into marker categories', () {
+      expect(
+        const ViennaOgdPoiDto(
+          name: 'Kunsthistorisches Museum',
+          longitude: 16.3614,
+          latitude: 48.2038,
+        ).toDomain()?.category,
+        'Museum',
+      );
+      expect(
+        const ViennaOgdPoiDto(
+          name: 'Stephansdom',
+          longitude: 16.3731,
+          latitude: 48.2085,
+        ).toDomain()?.category,
+        'Sacred',
+      );
+      expect(
+        const ViennaOgdPoiDto(
+          name: 'Tiergarten Schönbrunn',
+          longitude: 16.3028,
+          latitude: 48.1821,
+        ).toDomain()?.category,
+        'Nature',
+      );
+      expect(
+        const ViennaOgdPoiDto(
+          name: 'Urania Sternwarte',
+          longitude: 16.3836,
+          latitude: 48.2116,
+        ).toDomain()?.category,
+        'Observatory',
+      );
+      expect(
+        const ViennaOgdPoiDto(
+          name: 'Ankeruhr',
+          longitude: 16.3737,
+          latitude: 48.2108,
+        ).toDomain()?.category,
+        'Landmark',
+      );
+    });
   });
 }
