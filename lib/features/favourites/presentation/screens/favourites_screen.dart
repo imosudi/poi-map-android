@@ -13,11 +13,57 @@ import '../providers/favourites_provider.dart';
 class FavouritesScreen extends ConsumerWidget {
   const FavouritesScreen({super.key});
 
+  Future<void> _confirmAndRemove(
+    BuildContext context,
+    WidgetRef ref,
+    Poi poi,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: Image.asset(
+          AppAssets.favouriteStar,
+          width: 28,
+          height: 28,
+          fit: BoxFit.contain,
+          excludeFromSemantics: true,
+        ),
+        title: const Text('Remove saved place?'),
+        content: Text(
+          'Remove "${poi.name}" from your saved places? It will remain available in the catalogue and on the map.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(favouritesProvider.notifier).removePoi(poi);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final savedState = ref.watch(resolvedSavedPlacesProvider);
     final count = savedState.asData?.value.length;
+
+    ref.listen<String?>(favouritesFeedbackProvider, (previous, next) {
+      if (next != null && next != previous) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(next)));
+        ref.read(favouritesFeedbackProvider.notifier).clear();
+      }
+    });
 
     return SafeArea(
       child: Column(
@@ -68,7 +114,12 @@ class FavouritesScreen extends ConsumerWidget {
                 separatorBuilder: (_, __) =>
                     const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
-                  return PoiListItem(poi: items[index], isSaved: true);
+                  final poi = items[index];
+                  return PoiListItem(
+                    poi: poi,
+                    isSaved: true,
+                    onRemove: () => _confirmAndRemove(context, ref, poi),
+                  );
                 },
               ),
             ),

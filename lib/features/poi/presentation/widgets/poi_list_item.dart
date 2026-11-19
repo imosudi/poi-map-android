@@ -12,12 +12,14 @@ class PoiListItem extends StatelessWidget {
     required this.poi,
     this.isSaved = false,
     this.onSave,
+    this.onRemove,
     this.onTap,
   });
 
   final Poi poi;
   final bool isSaved;
   final VoidCallback? onSave;
+  final VoidCallback? onRemove;
   final VoidCallback? onTap;
 
   @override
@@ -136,6 +138,14 @@ class PoiListItem extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (onRemove != null) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  IconButton(
+                    tooltip: 'Remove saved place',
+                    onPressed: onRemove,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                  ),
+                ],
               ] else if (onSave != null) ...[
                 const SizedBox(width: AppSpacing.xs),
                 IconButton(

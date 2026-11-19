@@ -35,6 +35,8 @@ final favouritesProvider =
     );
 
 final class FavouritesController extends AsyncNotifier<List<SavedPlace>> {
+  final Set<String> _deletingIds = <String>{};
+
   @override
   Future<List<SavedPlace>> build() {
     return ref.watch(favouritesRepositoryProvider).loadSavedPlaces();
@@ -77,6 +79,45 @@ final class FavouritesController extends AsyncNotifier<List<SavedPlace>> {
           ? error.message
           : 'Unable to save place to device storage.';
       ref.read(favouritesFeedbackProvider.notifier).show(message);
+    }
+  }
+
+  /// Removes [poi] from persistent storage, preventing duplicate deletions and
+  /// preserving saved records if storage fails.
+  Future<bool> removePoi(Poi poi) async {
+    if (_deletingIds.contains(poi.id)) {
+      return false;
+    }
+
+    final existing = state.asData?.value ?? const <SavedPlace>[];
+    if (!existing.any((place) => place.id == poi.id)) {
+      return false;
+    }
+
+    _deletingIds.add(poi.id);
+    try {
+      final updated = await ref
+          .read(favouritesRepositoryProvider)
+          .removePlace(poi.id);
+      if (!ref.mounted) {
+        return false;
+      }
+      state = AsyncValue.data(updated);
+      ref
+          .read(favouritesFeedbackProvider.notifier)
+          .show('Removed ${poi.name} from saved places');
+      return true;
+    } catch (error) {
+      if (!ref.mounted) {
+        return false;
+      }
+      final message = error is AppException
+          ? error.message
+          : 'Unable to remove place from device storage.';
+      ref.read(favouritesFeedbackProvider.notifier).show(message);
+      return false;
+    } finally {
+      _deletingIds.remove(poi.id);
     }
   }
 }

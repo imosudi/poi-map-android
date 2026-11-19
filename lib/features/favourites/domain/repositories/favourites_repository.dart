@@ -12,4 +12,8 @@ abstract interface class FavouritesRepository {
   /// Saves [poi] if not already present, persisting immediately and returning
   /// the updated list of saved places.
   Future<List<SavedPlace>> savePlace(Poi poi);
+
+  /// Removes the saved place matching [poiId], persisting immediately and
+  /// returning the updated list of saved places.
+  Future<List<SavedPlace>> removePlace(String poiId);
 }
