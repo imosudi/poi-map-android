@@ -34,4 +34,18 @@ final class LocalFavouritesRepository implements FavouritesRepository {
     await _storage.writeAll(updated);
     return updated;
   }
+
+  @override
+  Future<List<SavedPlace>> removePlace(String poiId) async {
+    final existing = await _storage.readAll();
+    if (!existing.any((place) => place.id == poiId)) {
+      return existing;
+    }
+
+    final updated = List<SavedPlace>.unmodifiable(
+      existing.where((place) => place.id != poiId),
+    );
+    await _storage.writeAll(updated);
+    return updated;
+  }
 }
