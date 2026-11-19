@@ -11,6 +11,7 @@ import 'package:poi_map_android/features/map/presentation/providers/map_provider
 import 'package:poi_map_android/features/poi/data/poi_providers.dart';
 import 'package:poi_map_android/features/poi/domain/entities/poi.dart';
 import 'package:poi_map_android/features/poi/domain/repositories/poi_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final class _FakePoiRepository implements PoiRepository {
   @override
@@ -28,6 +29,10 @@ final class _FakePoiRepository implements PoiRepository {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('AppShell renders branding assets, attribution, and navigation', (
     WidgetTester tester,
   ) async {
@@ -70,7 +75,7 @@ void main() {
 
     await tester.tap(find.text('Saved'));
     await tester.pumpAndSettle();
-    expect(find.text('Saved Places'), findsOneWidget);
+    expect(find.textContaining('Saved Places'), findsOneWidget);
   });
 
   testWidgets('AppRouter handles named routes and unknown route fallback', (

@@ -30,12 +30,14 @@ class PoiMapView extends StatefulWidget {
     required this.pois,
     this.selectedPoi,
     this.selectedPoiDistanceLabel,
+    this.savedPoiIds = const {},
     this.markerIcons = const {},
     this.userLocation,
     this.userLocationIcon,
     this.userLocationSequence = 0,
     this.isLocatingUser = false,
     this.onLocateUser,
+    this.onSavePoi,
     this.onPoiSelected,
     this.onClearSelection,
     this.mapBuilder,
@@ -44,12 +46,14 @@ class PoiMapView extends StatefulWidget {
   final List<Poi> pois;
   final Poi? selectedPoi;
   final String? selectedPoiDistanceLabel;
+  final Set<String> savedPoiIds;
   final Map<PoiMarkerCategory, BitmapDescriptor> markerIcons;
   final UserLocation? userLocation;
   final BitmapDescriptor? userLocationIcon;
   final int userLocationSequence;
   final bool isLocatingUser;
   final VoidCallback? onLocateUser;
+  final ValueChanged<Poi>? onSavePoi;
   final ValueChanged<Poi>? onPoiSelected;
   final VoidCallback? onClearSelection;
   final GoogleMapWidgetBuilder? mapBuilder;
@@ -213,6 +217,7 @@ class _PoiMapViewState extends State<PoiMapView> {
     final markers = PoiMarkerBuilder.build(
       pois: widget.pois,
       selectedPoiId: widget.selectedPoi?.id,
+      savedPoiIds: widget.savedPoiIds,
       iconCache: widget.markerIcons,
       onSelect: widget.onPoiSelected,
     );
@@ -338,6 +343,10 @@ class _PoiMapViewState extends State<PoiMapView> {
               key: ValueKey(selectedPoi.id),
               poi: selectedPoi,
               distanceLabel: widget.selectedPoiDistanceLabel,
+              isSaved: widget.savedPoiIds.contains(selectedPoi.id),
+              onSave: widget.onSavePoi == null
+                  ? null
+                  : () => widget.onSavePoi!(selectedPoi),
               onRequestLocation: widget.onLocateUser,
               onDismiss: () => widget.onClearSelection?.call(),
             ),

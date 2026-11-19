@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
+import '../../../favourites/presentation/providers/favourites_provider.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
 import '../../domain/user_location.dart';
@@ -60,12 +61,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final catalogueState = ref.watch(poiCatalogueProvider);
     final selectedPoi = ref.watch(selectedMapPoiProvider);
     final selectedDistanceLabel = ref.watch(selectedPoiDistanceLabelProvider);
+    final savedPoiIds = ref.watch(savedPoiIdsProvider);
     final markerIcons =
         ref.watch(markerIconsProvider).asData?.value ?? const {};
     final locationState = ref.watch(userLocationProvider);
     final userLocationIcon = ref.watch(userLocationIconProvider).asData?.value;
     final selectionController = ref.read(selectedPoiIdProvider.notifier);
     final locationController = ref.read(userLocationProvider.notifier);
+    final favouritesController = ref.read(favouritesProvider.notifier);
 
     ref.listen<UserLocationState>(userLocationProvider, (previous, next) {
       final message = next.feedbackMessage;
@@ -162,12 +165,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     pois: pois,
                     selectedPoi: selectedPoi,
                     selectedPoiDistanceLabel: selectedDistanceLabel,
+                    savedPoiIds: savedPoiIds,
                     markerIcons: markerIcons,
                     userLocation: locationState.location,
                     userLocationIcon: userLocationIcon,
                     userLocationSequence: locationState.requestSequence,
                     isLocatingUser: locationState.isLocating,
                     onLocateUser: locationController.locateUser,
+                    onSavePoi: favouritesController.savePoi,
                     onPoiSelected: (poi) => selectionController.select(poi.id),
                     onClearSelection: selectionController.clear,
                     mapBuilder: widget.mapBuilder,
