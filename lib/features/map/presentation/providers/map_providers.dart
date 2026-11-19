@@ -8,6 +8,7 @@ import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
 import '../../data/location_service.dart';
 import '../../data/map_config_service.dart';
+import '../../domain/distance_calculator.dart';
 import '../../domain/user_location.dart';
 import '../mappers/poi_marker_style.dart';
 import '../services/marker_icon_cache.dart';
@@ -169,3 +170,27 @@ final class UserLocationController extends Notifier<UserLocationState> {
     }
   }
 }
+
+/// Straight-line metric distance label between the user's current position
+/// and the selected POI, or `null` when either is unavailable.
+final selectedPoiDistanceLabelProvider = Provider<String?>((ref) {
+  final selectedPoi = ref.watch(selectedMapPoiProvider);
+  final userLocation = ref.watch(
+    userLocationProvider.select((state) => state.location),
+  );
+  if (selectedPoi == null || userLocation == null) {
+    return null;
+  }
+
+  final meters = DistanceCalculator.metersBetween(
+    startLatitude: userLocation.latitude,
+    startLongitude: userLocation.longitude,
+    endLatitude: selectedPoi.latitude,
+    endLongitude: selectedPoi.longitude,
+  );
+  final formatted = DistanceCalculator.formatMeters(meters);
+  if (formatted == null) {
+    return null;
+  }
+  return 'Direct distance: $formatted';
+});

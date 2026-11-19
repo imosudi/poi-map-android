@@ -11,10 +11,14 @@ class SelectedPoiCard extends StatelessWidget {
     super.key,
     required this.poi,
     required this.onDismiss,
+    this.distanceLabel,
+    this.onRequestLocation,
   });
 
   final Poi poi;
   final VoidCallback onDismiss;
+  final String? distanceLabel;
+  final VoidCallback? onRequestLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +94,68 @@ class SelectedPoiCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ],
+                  if (distanceLabel != null && distanceLabel!.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Row(
+                      children: [
+                        Image.asset(
+                          AppAssets.navigationArrow,
+                          width: 14,
+                          height: 14,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            distanceLabel!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Row(
+                      children: [
+                        Image.asset(
+                          AppAssets.navigationArrow,
+                          width: 14,
+                          height: 14,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            'Grant location access for distance information.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        if (onRequestLocation != null)
+                          TextButton(
+                            onPressed: onRequestLocation,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text('Allow'),
+                          ),
                       ],
                     ),
                   ],

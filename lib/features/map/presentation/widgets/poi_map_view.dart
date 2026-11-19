@@ -29,6 +29,7 @@ class PoiMapView extends StatefulWidget {
     super.key,
     required this.pois,
     this.selectedPoi,
+    this.selectedPoiDistanceLabel,
     this.markerIcons = const {},
     this.userLocation,
     this.userLocationIcon,
@@ -42,6 +43,7 @@ class PoiMapView extends StatefulWidget {
 
   final List<Poi> pois;
   final Poi? selectedPoi;
+  final String? selectedPoiDistanceLabel;
   final Map<PoiMarkerCategory, BitmapDescriptor> markerIcons;
   final UserLocation? userLocation;
   final BitmapDescriptor? userLocationIcon;
@@ -76,7 +78,7 @@ class _PoiMapViewState extends State<PoiMapView> {
     final location = widget.userLocation;
     if (location != null &&
         widget.userLocationSequence != oldWidget.userLocationSequence) {
-      _focusOnLocation(location);
+      _fitDatasetBounds(_controller, userLocation: location);
     }
   }
 
@@ -101,26 +103,7 @@ class _PoiMapViewState extends State<PoiMapView> {
     if (selected != null) {
       await _focusOnPoi(selected);
     } else {
-      await _fitDatasetBounds(controller);
-    }
-  }
-
-  Future<void> _focusOnLocation(UserLocation location) async {
-    final controller = _controller;
-    if (controller == null) {
-      return;
-    }
-    try {
-      await controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(location.latitude, location.longitude),
-            zoom: 15.5,
-          ),
-        ),
-      );
-    } catch (_) {
-      // Camera animation failures are non-fatal.
+      await _fitDatasetBounds(controller, userLocation: widget.userLocation);
     }
   }
 
@@ -144,8 +127,17 @@ class _PoiMapViewState extends State<PoiMapView> {
     }
   }
 
-  Future<void> _fitDatasetBounds(GoogleMapController controller) async {
-    final spec = MapCameraCalculator.computeInitialCamera(widget.pois);
+  Future<void> _fitDatasetBounds(
+    GoogleMapController? controller, {
+    UserLocation? userLocation,
+  }) async {
+    if (controller == null) {
+      return;
+    }
+    final spec = MapCameraCalculator.computeInitialCamera(
+      widget.pois,
+      userLocation: userLocation,
+    );
     if (!spec.hasBounds) {
       return;
     }
@@ -154,7 +146,7 @@ class _PoiMapViewState extends State<PoiMapView> {
         southwest: LatLng(spec.southwestLatitude!, spec.southwestLongitude!),
         northeast: LatLng(spec.northeastLatitude!, spec.northeastLongitude!),
       );
-      await controller.moveCamera(CameraUpdate.newLatLngBounds(bounds, 48));
+      await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 56));
     } catch (_) {
       // Initial CameraPosition already centres on the dataset.
     }
@@ -165,7 +157,10 @@ class _PoiMapViewState extends State<PoiMapView> {
     if (controller == null) {
       return;
     }
-    final spec = MapCameraCalculator.computeInitialCamera(widget.pois);
+    final spec = MapCameraCalculator.computeInitialCamera(
+      widget.pois,
+      userLocation: widget.userLocation,
+    );
     try {
       if (spec.hasBounds) {
         final bounds = LatLngBounds(
@@ -173,7 +168,7 @@ class _PoiMapViewState extends State<PoiMapView> {
           northeast: LatLng(spec.northeastLatitude!, spec.northeastLongitude!),
         );
         await controller.animateCamera(
-          CameraUpdate.newLatLngBounds(bounds, 48),
+          CameraUpdate.newLatLngBounds(bounds, 56),
         );
       } else {
         await controller.animateCamera(
@@ -342,6 +337,8 @@ class _PoiMapViewState extends State<PoiMapView> {
             child: SelectedPoiCard(
               key: ValueKey(selectedPoi.id),
               poi: selectedPoi,
+              distanceLabel: widget.selectedPoiDistanceLabel,
+              onRequestLocation: widget.onLocateUser,
               onDismiss: () => widget.onClearSelection?.call(),
             ),
           ),

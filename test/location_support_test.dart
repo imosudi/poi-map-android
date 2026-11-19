@@ -141,7 +141,7 @@ void main() {
   });
 
   group('MapScreen location controls', () {
-    testWidgets('adds user_location marker when My location succeeds', (
+    testWidgets('requests location on map load and adds user_location marker', (
       WidgetTester tester,
     ) async {
       Set<Marker> capturedMarkers = {};
@@ -175,24 +175,51 @@ void main() {
 
       expect(
         capturedMarkers.any((m) => m.markerId.value == 'user_location'),
-        isFalse,
-      );
-
-      tester
-          .widget<FloatingActionButton>(
-            find.byWidgetPredicate(
-              (w) => w is FloatingActionButton && w.tooltip == 'My location',
-            ),
-          )
-          .onPressed
-          ?.call();
-      await tester.pump();
-      await tester.pump();
-
-      expect(
-        capturedMarkers.any((m) => m.markerId.value == 'user_location'),
         isTrue,
       );
+    });
+
+    testWidgets('defers location request until Map tab becomes active', (
+      WidgetTester tester,
+    ) async {
+      final adapter = _FakeLocationAdapter(
+        initialPermission: LocationPermission.denied,
+        requestedPermission: LocationPermission.whileInUse,
+      );
+      final service = LocationService(adapter: adapter);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            poiRepositoryProvider.overrideWithValue(_FakePoiRepository()),
+            mapApiKeyConfiguredProvider.overrideWith((_) => true),
+            locationServiceProvider.overrideWithValue(service),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            home: const Scaffold(body: MapScreen(isActive: false)),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(adapter.requestCalled, isFalse);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            poiRepositoryProvider.overrideWithValue(_FakePoiRepository()),
+            mapApiKeyConfiguredProvider.overrideWith((_) => true),
+            locationServiceProvider.overrideWithValue(service),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            home: const Scaffold(body: MapScreen(isActive: true)),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(adapter.requestCalled, isTrue);
     });
 
     testWidgets('shows SnackBar with Settings action when permanently denied', (

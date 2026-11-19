@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import '../../poi/domain/entities/poi.dart';
+import 'user_location.dart';
 
 /// Immutable camera target computed from a collection of POIs.
 final class MapCameraSpec {
@@ -29,15 +30,28 @@ final class MapCameraSpec {
       northeastLongitude != null;
 }
 
-/// Computes sensible initial camera targets from Vienna POI coordinates.
+/// Computes sensible camera targets from Vienna POI coordinates and optional
+/// user location.
 abstract final class MapCameraCalculator {
   static const double viennaLatitude = 48.2082;
   static const double viennaLongitude = 16.3738;
   static const double defaultZoom = 12.5;
   static const double singlePoiZoom = 14.5;
 
-  static MapCameraSpec computeInitialCamera(List<Poi> pois) {
-    if (pois.isEmpty) {
+  static MapCameraSpec computeInitialCamera(
+    List<Poi> pois, {
+    UserLocation? userLocation,
+  }) {
+    final points = <(double lat, double lon)>[
+      for (final poi in pois)
+        if (Poi.isValidCoordinate(poi.latitude, poi.longitude))
+          (poi.latitude, poi.longitude),
+      if (userLocation != null &&
+          Poi.isValidCoordinate(userLocation.latitude, userLocation.longitude))
+        (userLocation.latitude, userLocation.longitude),
+    ];
+
+    if (points.isEmpty) {
       return const MapCameraSpec(
         latitude: viennaLatitude,
         longitude: viennaLongitude,
@@ -45,25 +59,25 @@ abstract final class MapCameraCalculator {
       );
     }
 
-    if (pois.length == 1) {
-      final only = pois.first;
+    if (points.length == 1) {
+      final only = points.first;
       return MapCameraSpec(
-        latitude: only.latitude,
-        longitude: only.longitude,
+        latitude: only.$1,
+        longitude: only.$2,
         zoom: singlePoiZoom,
       );
     }
 
-    var minLat = pois.first.latitude;
-    var maxLat = pois.first.latitude;
-    var minLon = pois.first.longitude;
-    var maxLon = pois.first.longitude;
+    var minLat = points.first.$1;
+    var maxLat = points.first.$1;
+    var minLon = points.first.$2;
+    var maxLon = points.first.$2;
 
-    for (final poi in pois.skip(1)) {
-      minLat = math.min(minLat, poi.latitude);
-      maxLat = math.max(maxLat, poi.latitude);
-      minLon = math.min(minLon, poi.longitude);
-      maxLon = math.max(maxLon, poi.longitude);
+    for (final point in points.skip(1)) {
+      minLat = math.min(minLat, point.$1);
+      maxLat = math.max(maxLat, point.$1);
+      minLon = math.min(minLon, point.$2);
+      maxLon = math.max(maxLon, point.$2);
     }
 
     final centerLat = (minLat + maxLat) / 2.0;

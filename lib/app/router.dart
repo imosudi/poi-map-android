@@ -65,16 +65,17 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late int _selectedIndex = widget.initialIndex.clamp(0, 2);
 
-  static const List<Widget> _destinations = [
-    PoiCatalogueScreen(),
-    MapScreen(),
-    FavouritesScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _destinations),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          const PoiCatalogueScreen(),
+          MapScreen(isActive: _selectedIndex == 1),
+          const FavouritesScreen(),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {

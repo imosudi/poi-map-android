@@ -10,6 +10,7 @@ import 'package:poi_map_android/core/network/cancellation_token.dart';
 import 'package:poi_map_android/core/widgets/app_error_view.dart';
 import 'package:poi_map_android/core/widgets/app_loading_view.dart';
 import 'package:poi_map_android/features/map/domain/map_camera_calculator.dart';
+import 'package:poi_map_android/features/map/domain/user_location.dart';
 import 'package:poi_map_android/features/map/presentation/providers/map_providers.dart';
 import 'package:poi_map_android/features/map/presentation/screens/map_screen.dart';
 import 'package:poi_map_android/features/poi/data/poi_providers.dart';
@@ -64,6 +65,18 @@ void main() {
       expect(spec.hasBounds, isTrue);
       expect(spec.southwestLatitude, 48.1915);
       expect(spec.northeastLatitude, 48.2085);
+    });
+
+    test('includes user location in bounds alongside POIs', () {
+      final spec = MapCameraCalculator.computeInitialCamera(
+        [samplePois.first],
+        userLocation: const UserLocation(latitude: 48.2500, longitude: 16.4200),
+      );
+      expect(spec.hasBounds, isTrue);
+      expect(spec.southwestLatitude, 48.2085);
+      expect(spec.southwestLongitude, 16.3731);
+      expect(spec.northeastLatitude, 48.2500);
+      expect(spec.northeastLongitude, 16.4200);
     });
   });
 

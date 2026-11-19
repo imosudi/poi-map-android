@@ -14,17 +14,52 @@ import '../providers/map_providers.dart';
 import '../widgets/poi_map_view.dart';
 
 /// Interactive Vienna POI map screen.
-class MapScreen extends ConsumerWidget {
-  const MapScreen({super.key, this.mapBuilder});
+class MapScreen extends ConsumerStatefulWidget {
+  const MapScreen({super.key, this.isActive = true, this.mapBuilder});
 
+  final bool isActive;
   final GoogleMapWidgetBuilder? mapBuilder;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends ConsumerState<MapScreen> {
+  bool _hasRequestedInitialLocation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _maybeRequestLocation();
+  }
+
+  @override
+  void didUpdateWidget(covariant MapScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _maybeRequestLocation();
+    }
+  }
+
+  void _maybeRequestLocation() {
+    if (!widget.isActive || _hasRequestedInitialLocation) {
+      return;
+    }
+    _hasRequestedInitialLocation = true;
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(userLocationProvider.notifier).locateUser();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final apiKeyState = ref.watch(mapApiKeyConfiguredProvider);
     final catalogueState = ref.watch(poiCatalogueProvider);
     final selectedPoi = ref.watch(selectedMapPoiProvider);
+    final selectedDistanceLabel = ref.watch(selectedPoiDistanceLabelProvider);
     final markerIcons =
         ref.watch(markerIconsProvider).asData?.value ?? const {};
     final locationState = ref.watch(userLocationProvider);
@@ -126,6 +161,7 @@ class MapScreen extends ConsumerWidget {
                   builder: (pois) => PoiMapView(
                     pois: pois,
                     selectedPoi: selectedPoi,
+                    selectedPoiDistanceLabel: selectedDistanceLabel,
                     markerIcons: markerIcons,
                     userLocation: locationState.location,
                     userLocationIcon: userLocationIcon,
@@ -134,7 +170,7 @@ class MapScreen extends ConsumerWidget {
                     onLocateUser: locationController.locateUser,
                     onPoiSelected: (poi) => selectionController.select(poi.id),
                     onClearSelection: selectionController.clear,
-                    mapBuilder: mapBuilder,
+                    mapBuilder: widget.mapBuilder,
                   ),
                 );
               },
