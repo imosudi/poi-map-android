@@ -107,4 +107,3 @@ class SelectedPoiCard extends StatelessWidget {
     );
   }
 }
-

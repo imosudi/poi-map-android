@@ -24,6 +24,8 @@ class MapScreen extends ConsumerWidget {
     final apiKeyState = ref.watch(mapApiKeyConfiguredProvider);
     final catalogueState = ref.watch(poiCatalogueProvider);
     final selectedPoi = ref.watch(selectedMapPoiProvider);
+    final markerIcons =
+        ref.watch(markerIconsProvider).asData?.value ?? const {};
     final selectionController = ref.read(selectedPoiIdProvider.notifier);
 
     return SafeArea(
@@ -87,6 +89,7 @@ class MapScreen extends ConsumerWidget {
                   builder: (pois) => PoiMapView(
                     pois: pois,
                     selectedPoi: selectedPoi,
+                    markerIcons: markerIcons,
                     onPoiSelected: (poi) => selectionController.select(poi.id),
                     onClearSelection: selectionController.clear,
                     mapBuilder: mapBuilder,

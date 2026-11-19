@@ -9,6 +9,8 @@ import '../../../../core/widgets/app_loading_view.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../domain/map_camera_calculator.dart';
 import '../mappers/poi_marker_builder.dart';
+import '../mappers/poi_marker_style.dart';
+import 'poi_marker_legend.dart';
 import 'selected_poi_card.dart';
 
 typedef GoogleMapWidgetBuilder =
@@ -26,6 +28,7 @@ class PoiMapView extends StatefulWidget {
     super.key,
     required this.pois,
     this.selectedPoi,
+    this.markerIcons = const {},
     this.onPoiSelected,
     this.onClearSelection,
     this.mapBuilder,
@@ -33,6 +36,7 @@ class PoiMapView extends StatefulWidget {
 
   final List<Poi> pois;
   final Poi? selectedPoi;
+  final Map<PoiMarkerCategory, BitmapDescriptor> markerIcons;
   final ValueChanged<Poi>? onPoiSelected;
   final VoidCallback? onClearSelection;
   final GoogleMapWidgetBuilder? mapBuilder;
@@ -46,6 +50,7 @@ class _PoiMapViewState extends State<PoiMapView> {
 
   GoogleMapController? _controller;
   bool _isMapReady = false;
+  bool _showLegend = false;
   String? _mapError;
 
   @override
@@ -176,6 +181,7 @@ class _PoiMapViewState extends State<PoiMapView> {
     final markers = PoiMarkerBuilder.build(
       pois: widget.pois,
       selectedPoiId: widget.selectedPoi?.id,
+      iconCache: widget.markerIcons,
       onSelect: widget.onPoiSelected,
     );
 
@@ -212,20 +218,45 @@ class _PoiMapViewState extends State<PoiMapView> {
           Positioned(
             right: AppSpacing.md,
             top: AppSpacing.md,
-            child: FloatingActionButton.small(
-              heroTag: 'recentre_map_fab',
-              tooltip: 'Recentre map',
-              backgroundColor: AppPalette.surface,
-              foregroundColor: AppPalette.ink,
-              onPressed: _recentre,
-              child: Image.asset(
-                AppAssets.mapPin,
-                width: 20,
-                height: 20,
-                fit: BoxFit.contain,
-                excludeFromSemantics: true,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'recentre_map_fab',
+                  tooltip: 'Recentre map',
+                  backgroundColor: AppPalette.surface,
+                  foregroundColor: AppPalette.ink,
+                  onPressed: _recentre,
+                  child: Image.asset(
+                    AppAssets.mapPin,
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                FloatingActionButton.small(
+                  heroTag: 'map_legend_fab',
+                  tooltip: 'Marker legend',
+                  backgroundColor: _showLegend
+                      ? AppPalette.accentSoft
+                      : AppPalette.surface,
+                  foregroundColor: _showLegend
+                      ? AppPalette.accent
+                      : AppPalette.ink,
+                  onPressed: () => setState(() => _showLegend = !_showLegend),
+                  child: const Icon(Icons.layers_outlined, size: 20),
+                ),
+              ],
             ),
+          ),
+        if (_showLegend)
+          const Positioned(
+            left: AppSpacing.md,
+            right: 72,
+            top: AppSpacing.md,
+            child: PoiMarkerLegend(),
           ),
         if (selectedPoi != null)
           Positioned(

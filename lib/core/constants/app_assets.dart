@@ -19,6 +19,11 @@ abstract final class AppAssets {
 
   // Markers
   static const String favouriteMarker = 'assets/markers/favourite.png';
+  static const String landmarkMarker = 'assets/markers/landmark.png';
+  static const String museumMarker = 'assets/markers/museum.png';
+  static const String natureMarker = 'assets/markers/nature.png';
+  static const String observatoryMarker = 'assets/markers/observatory.png';
+  static const String sacredMarker = 'assets/markers/sacred.png';
 
   // UI
   static const String moreDetailsButton = 'assets/ui/more-details-button.png';

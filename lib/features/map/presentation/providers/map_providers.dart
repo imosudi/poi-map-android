@@ -1,8 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../app/providers.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
 import '../../data/map_config_service.dart';
+import '../mappers/poi_marker_style.dart';
+import '../services/marker_icon_cache.dart';
 
 final mapConfigServiceProvider = Provider<MapConfigService>((ref) {
   return const MapConfigService();
@@ -11,6 +15,15 @@ final mapConfigServiceProvider = Provider<MapConfigService>((ref) {
 final mapApiKeyConfiguredProvider = FutureProvider<bool>((ref) {
   return ref.watch(mapConfigServiceProvider).isApiKeyConfigured();
 });
+
+final markerIconCacheProvider = Provider<MarkerIconCache>((ref) {
+  return MarkerIconCache(logger: ref.watch(appLoggerProvider));
+});
+
+final markerIconsProvider =
+    FutureProvider<Map<PoiMarkerCategory, BitmapDescriptor>>((ref) {
+      return ref.watch(markerIconCacheProvider).preloadAll();
+    });
 
 /// Stores the identifier of the currently selected POI on the map.
 final selectedPoiIdProvider =

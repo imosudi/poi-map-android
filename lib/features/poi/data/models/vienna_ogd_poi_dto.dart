@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../../core/errors/app_exception.dart';
 import '../../domain/entities/poi.dart';
+import '../../domain/services/poi_category_classifier.dart';
 
 /// GeoJSON FeatureCollection transfer model for `ogdwien:SEHENSWUERDIGOGD`.
 final class ViennaOgdFeatureCollectionDto {
@@ -164,6 +165,7 @@ final class ViennaOgdPoiDto {
     return Poi(
       id: resolveStableId(),
       name: name,
+      category: PoiCategoryClassifier.classify(name),
       latitude: latitude,
       longitude: longitude,
       address: address,
