@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../domain/map_camera_calculator.dart';
+import '../../domain/user_location.dart';
 import '../mappers/poi_marker_builder.dart';
 import '../mappers/poi_marker_style.dart';
 import 'poi_marker_legend.dart';
@@ -29,6 +30,11 @@ class PoiMapView extends StatefulWidget {
     required this.pois,
     this.selectedPoi,
     this.markerIcons = const {},
+    this.userLocation,
+    this.userLocationIcon,
+    this.userLocationSequence = 0,
+    this.isLocatingUser = false,
+    this.onLocateUser,
     this.onPoiSelected,
     this.onClearSelection,
     this.mapBuilder,
@@ -37,6 +43,11 @@ class PoiMapView extends StatefulWidget {
   final List<Poi> pois;
   final Poi? selectedPoi;
   final Map<PoiMarkerCategory, BitmapDescriptor> markerIcons;
+  final UserLocation? userLocation;
+  final BitmapDescriptor? userLocationIcon;
+  final int userLocationSequence;
+  final bool isLocatingUser;
+  final VoidCallback? onLocateUser;
   final ValueChanged<Poi>? onPoiSelected;
   final VoidCallback? onClearSelection;
   final GoogleMapWidgetBuilder? mapBuilder;
@@ -59,6 +70,13 @@ class _PoiMapViewState extends State<PoiMapView> {
     final selected = widget.selectedPoi;
     if (selected != null && selected.id != oldWidget.selectedPoi?.id) {
       _focusOnPoi(selected);
+      return;
+    }
+
+    final location = widget.userLocation;
+    if (location != null &&
+        widget.userLocationSequence != oldWidget.userLocationSequence) {
+      _focusOnLocation(location);
     }
   }
 
@@ -84,6 +102,25 @@ class _PoiMapViewState extends State<PoiMapView> {
       await _focusOnPoi(selected);
     } else {
       await _fitDatasetBounds(controller);
+    }
+  }
+
+  Future<void> _focusOnLocation(UserLocation location) async {
+    final controller = _controller;
+    if (controller == null) {
+      return;
+    }
+    try {
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(location.latitude, location.longitude),
+            zoom: 15.5,
+          ),
+        ),
+      );
+    } catch (_) {
+      // Camera animation failures are non-fatal.
     }
   }
 
@@ -184,6 +221,22 @@ class _PoiMapViewState extends State<PoiMapView> {
       iconCache: widget.markerIcons,
       onSelect: widget.onPoiSelected,
     );
+    final userLocation = widget.userLocation;
+    if (userLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('user_location'),
+          position: LatLng(userLocation.latitude, userLocation.longitude),
+          icon:
+              widget.userLocationIcon ??
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          zIndexInt: 2,
+          infoWindow: const InfoWindow(title: 'Your location'),
+        ),
+      );
+    }
 
     final mapWidget = widget.mapBuilder != null
         ? widget.mapBuilder!(context, initialPosition, markers, _onMapCreated)
@@ -199,6 +252,7 @@ class _PoiMapViewState extends State<PoiMapView> {
             zoomControlsEnabled: true,
             compassEnabled: true,
             mapToolbarEnabled: false,
+            myLocationEnabled: userLocation != null,
             myLocationButtonEnabled: false,
           );
 
@@ -207,56 +261,78 @@ class _PoiMapViewState extends State<PoiMapView> {
     return Stack(
       children: [
         Positioned.fill(child: mapWidget),
-        if (!_isMapReady)
-          const Positioned.fill(
-            child: ColoredBox(
-              color: AppPalette.canvas,
-              child: AppLoadingView(message: 'Initialising map...'),
-            ),
-          ),
-        if (_isMapReady)
-          Positioned(
-            right: AppSpacing.md,
-            top: AppSpacing.md,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FloatingActionButton.small(
-                  heroTag: 'recentre_map_fab',
-                  tooltip: 'Recentre map',
-                  backgroundColor: AppPalette.surface,
-                  foregroundColor: AppPalette.ink,
-                  onPressed: _recentre,
-                  child: Image.asset(
-                    AppAssets.mapPin,
-                    width: 20,
-                    height: 20,
-                    fit: BoxFit.contain,
-                    excludeFromSemantics: true,
-                  ),
+        Positioned(
+          right: AppSpacing.md,
+          top: AppSpacing.md,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton.small(
+                heroTag: 'recentre_map_fab',
+                tooltip: 'Recentre map',
+                backgroundColor: AppPalette.surface,
+                foregroundColor: AppPalette.ink,
+                onPressed: _recentre,
+                child: Image.asset(
+                  AppAssets.mapPin,
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.contain,
+                  excludeFromSemantics: true,
                 ),
+              ),
+              if (widget.onLocateUser != null) ...[
                 const SizedBox(height: AppSpacing.sm),
                 FloatingActionButton.small(
-                  heroTag: 'map_legend_fab',
-                  tooltip: 'Marker legend',
-                  backgroundColor: _showLegend
-                      ? AppPalette.accentSoft
-                      : AppPalette.surface,
-                  foregroundColor: _showLegend
-                      ? AppPalette.accent
-                      : AppPalette.ink,
-                  onPressed: () => setState(() => _showLegend = !_showLegend),
-                  child: const Icon(Icons.layers_outlined, size: 20),
+                  heroTag: 'my_location_fab',
+                  tooltip: 'My location',
+                  backgroundColor: AppPalette.surface,
+                  foregroundColor: AppPalette.ink,
+                  onPressed: widget.isLocatingUser ? null : widget.onLocateUser,
+                  child: widget.isLocatingUser
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Image.asset(
+                          AppAssets.navigationArrow,
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                        ),
                 ),
               ],
-            ),
+              const SizedBox(height: AppSpacing.sm),
+              FloatingActionButton.small(
+                heroTag: 'map_legend_fab',
+                tooltip: 'Marker legend',
+                backgroundColor: _showLegend
+                    ? AppPalette.accentSoft
+                    : AppPalette.surface,
+                foregroundColor: _showLegend
+                    ? AppPalette.accent
+                    : AppPalette.ink,
+                onPressed: () => setState(() => _showLegend = !_showLegend),
+                child: const Icon(Icons.layers_outlined, size: 20),
+              ),
+            ],
           ),
+        ),
         if (_showLegend)
           const Positioned(
             left: AppSpacing.md,
             right: 72,
             top: AppSpacing.md,
             child: PoiMarkerLegend(),
+          ),
+        if (!_isMapReady)
+          const Positioned.fill(
+            child: ColoredBox(
+              color: AppPalette.canvas,
+              child: AppLoadingView(message: 'Initialising map...'),
+            ),
           ),
         if (selectedPoi != null)
           Positioned(

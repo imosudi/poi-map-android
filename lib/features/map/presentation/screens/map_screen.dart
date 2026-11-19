@@ -9,6 +9,7 @@ import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
+import '../../domain/user_location.dart';
 import '../providers/map_providers.dart';
 import '../widgets/poi_map_view.dart';
 
@@ -26,7 +27,43 @@ class MapScreen extends ConsumerWidget {
     final selectedPoi = ref.watch(selectedMapPoiProvider);
     final markerIcons =
         ref.watch(markerIconsProvider).asData?.value ?? const {};
+    final locationState = ref.watch(userLocationProvider);
+    final userLocationIcon = ref.watch(userLocationIconProvider).asData?.value;
     final selectionController = ref.read(selectedPoiIdProvider.notifier);
+    final locationController = ref.read(userLocationProvider.notifier);
+
+    ref.listen<UserLocationState>(userLocationProvider, (previous, next) {
+      final message = next.feedbackMessage;
+      if (message == null || message == previous?.feedbackMessage) {
+        return;
+      }
+      final status = next.status;
+      final canOpenSettings =
+          status == LocationAccessStatus.permanentlyDenied ||
+          status == LocationAccessStatus.serviceDisabled;
+      final locationService = ref.read(locationServiceProvider);
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            action: canOpenSettings
+                ? SnackBarAction(
+                    label: 'Settings',
+                    onPressed: () {
+                      if (status == LocationAccessStatus.serviceDisabled) {
+                        locationService.openLocationSettings();
+                      } else {
+                        locationService.openAppSettings();
+                      }
+                    },
+                  )
+                : null,
+          ),
+        );
+      locationController.clearFeedback();
+    });
 
     return SafeArea(
       child: Column(
@@ -90,6 +127,11 @@ class MapScreen extends ConsumerWidget {
                     pois: pois,
                     selectedPoi: selectedPoi,
                     markerIcons: markerIcons,
+                    userLocation: locationState.location,
+                    userLocationIcon: userLocationIcon,
+                    userLocationSequence: locationState.requestSequence,
+                    isLocatingUser: locationState.isLocating,
+                    onLocateUser: locationController.locateUser,
                     onPoiSelected: (poi) => selectionController.select(poi.id),
                     onClearSelection: selectionController.clear,
                     mapBuilder: mapBuilder,

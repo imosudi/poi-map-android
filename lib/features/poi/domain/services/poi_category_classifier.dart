@@ -72,4 +72,3 @@ abstract final class PoiCategoryClassifier {
     return false;
   }
 }
-
