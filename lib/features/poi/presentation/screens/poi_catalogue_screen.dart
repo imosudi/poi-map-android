@@ -43,6 +43,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
   Widget build(BuildContext context) {
     final catalogueState = ref.watch(poiCatalogueProvider);
     final filteredState = ref.watch(filteredPoisProvider);
+    final paginatedState = ref.watch(paginatedPoisProvider);
     final criteria = ref.watch(poiFilterCriteriaProvider);
     final categories = ref.watch(availablePoiCategoriesProvider);
     final refreshStatus = ref.watch(poiRefreshStatusProvider);
@@ -50,6 +51,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
 
     final catalogueController = ref.read(poiCatalogueProvider.notifier);
     final filterController = ref.read(poiFilterCriteriaProvider.notifier);
+    final pageController = ref.read(cataloguePageProvider.notifier);
     final favouritesController = ref.read(favouritesProvider.notifier);
 
     ref.listen<PoiFilterCriteria>(poiFilterCriteriaProvider, (_, next) {
@@ -131,11 +133,12 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
               ),
             ),
             ..._buildBodySlivers(
-              state: filteredState,
+              state: paginatedState,
               totalCount: totalCount ?? 0,
               hasActiveFilters: criteria.hasActiveFilters,
               savedPoiIds: savedPoiIds,
               onSavePoi: favouritesController.savePoi,
+              onLoadMore: pageController.loadNextPage,
               onRetry: catalogueController.refresh,
               onClearFilters: filterController.clearAll,
             ),
@@ -163,32 +166,36 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
   }
 
   List<Widget> _buildBodySlivers({
-    required AsyncValue<List<Poi>> state,
+    required AsyncValue<({List<Poi> items, int totalCount, bool hasMore})>
+    state,
     required int totalCount,
     required bool hasActiveFilters,
     required Set<String> savedPoiIds,
     required ValueChanged<Poi> onSavePoi,
+    required VoidCallback onLoadMore,
     required VoidCallback onRetry,
     required VoidCallback onClearFilters,
   }) {
-    final items = state.asData?.value;
-    if (state.isLoading || state.hasError || items == null) {
+    final pageData = state.asData?.value;
+    if (state.isLoading || state.hasError || pageData == null) {
       return [
         SliverFillRemaining(
           hasScrollBody: false,
-          child: AsyncValueView<List<Poi>>(
-            value: state,
-            isEmpty: (list) => list.isEmpty,
-            loadingMessage: 'Loading Vienna sights...',
-            emptyTitle: 'No places available',
-            emptyMessage: 'No Vienna sights were found. Try refreshing.',
-            onRetry: onRetry,
-            builder: (_) => const SizedBox.shrink(),
-          ),
+          child:
+              AsyncValueView<({List<Poi> items, int totalCount, bool hasMore})>(
+                value: state,
+                isEmpty: (data) => data.items.isEmpty,
+                loadingMessage: 'Loading Vienna sights...',
+                emptyTitle: 'No places available',
+                emptyMessage: 'No Vienna sights were found. Try refreshing.',
+                onRetry: onRetry,
+                builder: (_) => const SizedBox.shrink(),
+              ),
         ),
       ];
     }
 
+    final items = pageData.items;
     if (items.isEmpty) {
       if (totalCount > 0 && hasActiveFilters) {
         return [
@@ -234,6 +241,25 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
           },
         ),
       ),
+      if (pageData.hasMore)
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.md,
+            AppSpacing.md,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: Center(
+              child: OutlinedButton(
+                onPressed: onLoadMore,
+                child: Text(
+                  'Load more (${items.length} of ${pageData.totalCount})',
+                ),
+              ),
+            ),
+          ),
+        ),
     ];
   }
 }

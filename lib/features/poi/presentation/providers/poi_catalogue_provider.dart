@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/app_exception.dart';
@@ -103,6 +105,7 @@ final class PoiCatalogueController extends AsyncNotifier<List<Poi>> {
         return;
       }
       state = AsyncValue.data(fresh);
+      ref.read(cataloguePageProvider.notifier).reset();
       refreshStatus.succeed();
     } catch (error) {
       if (!ref.mounted) {
@@ -170,3 +173,49 @@ final filteredPoisProvider = Provider<AsyncValue<List<Poi>>>((ref) {
   final criteria = ref.watch(poiFilterCriteriaProvider);
   return catalogue.whenData((pois) => PoiFilter.apply(pois, criteria));
 });
+
+/// Number of POIs revealed per catalogue page.
+final cataloguePageSizeProvider = Provider<int>((ref) => 15);
+
+/// Current 1-based page index for the catalogue list, resetting whenever
+/// search or category criteria change.
+final cataloguePageProvider = NotifierProvider<CataloguePageController, int>(
+  CataloguePageController.new,
+);
+
+final class CataloguePageController extends Notifier<int> {
+  @override
+  int build() {
+    ref.watch(poiFilterCriteriaProvider);
+    return 1;
+  }
+
+  void loadNextPage() {
+    state = state + 1;
+  }
+
+  void reset() {
+    if (state != 1) {
+      state = 1;
+    }
+  }
+}
+
+/// Paginated slice of [filteredPoisProvider] for incremental list rendering.
+final paginatedPoisProvider =
+    Provider<AsyncValue<({List<Poi> items, int totalCount, bool hasMore})>>((
+      ref,
+    ) {
+      final filteredState = ref.watch(filteredPoisProvider);
+      final page = ref.watch(cataloguePageProvider);
+      final pageSize = ref.watch(cataloguePageSizeProvider);
+
+      return filteredState.whenData((filtered) {
+        final visibleCount = math.min(page * pageSize, filtered.length);
+        return (
+          items: List<Poi>.unmodifiable(filtered.take(visibleCount)),
+          totalCount: filtered.length,
+          hasMore: visibleCount < filtered.length,
+        );
+      });
+    });
