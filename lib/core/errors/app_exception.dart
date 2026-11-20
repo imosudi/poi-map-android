@@ -29,6 +29,11 @@ final class LocationException extends AppException {
   const LocationException(super.message, {super.cause});
 }
 
+/// Raised when BLE permissions, adapter state, or scanning fail.
+final class BleException extends AppException {
+  const BleException(super.message, {super.cause});
+}
+
 /// Fallback exception for unexpected runtime errors.
 final class UnexpectedException extends AppException {
   const UnexpectedException([
