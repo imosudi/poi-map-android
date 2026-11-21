@@ -169,4 +169,3 @@ final class BeaconRegistryRepositoryImpl implements BeaconRegistryRepository {
     });
   }
 }
-

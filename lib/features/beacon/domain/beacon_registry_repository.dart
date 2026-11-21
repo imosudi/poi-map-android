@@ -23,4 +23,3 @@ abstract interface class BeaconRegistryRepository {
   /// Returns all registry entries associated with [poiId].
   Future<List<BeaconRegistryEntry>> getBeaconsForPoi(String poiId);
 }
-

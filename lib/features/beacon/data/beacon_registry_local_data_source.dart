@@ -46,4 +46,3 @@ final class SharedPreferencesBeaconRegistryDataSource
     return _assetBundle.loadString(defaultAssetPath);
   }
 }
-

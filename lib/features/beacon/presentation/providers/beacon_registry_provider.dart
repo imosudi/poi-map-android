@@ -89,4 +89,3 @@ final resolvedBeaconPoisProvider = Provider<List<ResolvedBeaconPoi>>((ref) {
     pois: pois,
   );
 });
-

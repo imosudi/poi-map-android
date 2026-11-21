@@ -91,4 +91,3 @@ final class BeaconPoiResolver {
     return List<ResolvedBeaconPoi>.unmodifiable(resolved);
   }
 }
-
