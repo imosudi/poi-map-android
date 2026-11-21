@@ -82,12 +82,14 @@ final class BleScanState {
   const BleScanState({
     this.status = BleScanSessionStatus.idle,
     this.adapterState = BleAdapterState.unknown,
+    this.isTogglingBluetooth = false,
     this.resultsByDeviceId = const <String, BleRawScanResult>{},
     this.errorMessage,
   });
 
   final BleScanSessionStatus status;
   final BleAdapterState adapterState;
+  final bool isTogglingBluetooth;
   final Map<String, BleRawScanResult> resultsByDeviceId;
   final String? errorMessage;
 
@@ -96,6 +98,7 @@ final class BleScanState {
   BleScanState copyWith({
     BleScanSessionStatus? status,
     BleAdapterState? adapterState,
+    bool? isTogglingBluetooth,
     Map<String, BleRawScanResult>? resultsByDeviceId,
     String? errorMessage,
     bool clearErrorMessage = false,
@@ -103,6 +106,7 @@ final class BleScanState {
     return BleScanState(
       status: status ?? this.status,
       adapterState: adapterState ?? this.adapterState,
+      isTogglingBluetooth: isTogglingBluetooth ?? this.isTogglingBluetooth,
       resultsByDeviceId: resultsByDeviceId ?? this.resultsByDeviceId,
       errorMessage: clearErrorMessage
           ? null

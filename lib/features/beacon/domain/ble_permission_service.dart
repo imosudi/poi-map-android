@@ -10,4 +10,7 @@ abstract interface class BlePermissionService {
 
   /// Opens the system application settings screen for manual permission recovery.
   Future<bool> openAppSettings();
+
+  /// Opens the system Bluetooth settings screen so the user can toggle Bluetooth.
+  Future<bool> openBluetoothSettings();
 }

@@ -14,6 +14,7 @@ class BeaconScanStatusBar extends StatelessWidget {
     required this.onStartScan,
     required this.onStopScan,
     required this.onOpenSettings,
+    this.onToggleBluetooth,
   });
 
   final BleScanState scanState;
@@ -21,16 +22,21 @@ class BeaconScanStatusBar extends StatelessWidget {
   final VoidCallback onStartScan;
   final VoidCallback onStopScan;
   final VoidCallback onOpenSettings;
+  final VoidCallback? onToggleBluetooth;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (icon, message, actionLabel, onAction) = _describeState();
+    final isBluetoothSupported =
+        scanState.status != BleScanSessionStatus.unsupported;
+    final isBluetoothOn =
+        scanState.adapterState == BleAdapterState.on || scanState.isScanning;
 
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
@@ -59,15 +65,49 @@ class BeaconScanStatusBar extends StatelessWidget {
             ),
           ),
           if (actionLabel != null && onAction != null) ...[
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: AppSpacing.xs),
             TextButton(
-              onPressed: onAction,
+              onPressed: scanState.isTogglingBluetooth ? null : onAction,
               style: TextButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
               ),
               child: Text(actionLabel),
             ),
+          ],
+          if (isBluetoothSupported && onToggleBluetooth != null) ...[
+            const SizedBox(width: AppSpacing.xs),
+            if (scanState.isTogglingBluetooth)
+              Semantics(
+                label: 'Switching Bluetooth',
+                child: const SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: Center(
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Semantics(
+                label: isBluetoothOn
+                    ? 'Turn off Bluetooth'
+                    : 'Turn on Bluetooth',
+                child: SizedBox(
+                  height: 32,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Switch.adaptive(
+                      value: isBluetoothOn,
+                      onChanged: (_) => onToggleBluetooth!(),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ],
       ),
@@ -121,7 +161,7 @@ class BeaconScanStatusBar extends StatelessWidget {
       case BleScanSessionStatus.idle:
         return (
           Icons.bluetooth_rounded,
-          'Scan for nearby ESP32-S3 POI beacons',
+          'Scan for nearby POI Explorer beacons',
           'Scan',
           onStartScan,
         );

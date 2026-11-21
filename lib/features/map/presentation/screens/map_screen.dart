@@ -156,6 +156,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               onStartScan: bleScanController.startScanning,
               onStopScan: bleScanController.stopScanning,
               onOpenSettings: bleScanController.openAppSettings,
+              onToggleBluetooth: bleScanController.toggleBluetooth,
             ),
           ),
           Expanded(

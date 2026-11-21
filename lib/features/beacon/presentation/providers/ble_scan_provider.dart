@@ -236,6 +236,44 @@ final class BleScanController extends Notifier<BleScanState> {
     return ref.read(bleScanningRepositoryProvider).openAppSettings();
   }
 
+  /// Prompts the user to turn Bluetooth on, or opens Bluetooth settings when
+  /// Bluetooth is already on so the user can turn it off.
+  ///
+  /// Enforces a busy deadband via [BleScanState.isTogglingBluetooth] to prevent
+  /// rapid on/off flip-flopping.
+  Future<void> toggleBluetooth() async {
+    if (state.isTogglingBluetooth) return;
+
+    state = state.copyWith(isTogglingBluetooth: true);
+    try {
+      final repository = ref.read(bleScanningRepositoryProvider);
+      final isCurrentlyOn =
+          state.adapterState == BleAdapterState.on || state.isScanning;
+      if (isCurrentlyOn) {
+        await stopScanning();
+        await repository.openBluetoothSettings();
+        return;
+      }
+
+      await repository.turnOnBluetooth();
+      final enabled = await repository.isBluetoothEnabled();
+      if (_isDisposed) return;
+      if (enabled) {
+        state = state.copyWith(
+          adapterState: BleAdapterState.on,
+          status: state.status == BleScanSessionStatus.bluetoothOff
+              ? BleScanSessionStatus.idle
+              : state.status,
+          clearErrorMessage: true,
+        );
+      }
+    } finally {
+      if (!_isDisposed) {
+        state = state.copyWith(isTogglingBluetooth: false);
+      }
+    }
+  }
+
   void _cancelSubscriptions() {
     unawaited(_resultsSub?.cancel());
     unawaited(_adapterSub?.cancel());
