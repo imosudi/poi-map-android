@@ -207,4 +207,3 @@ final class _TrackedBeacon {
     );
   }
 }
-

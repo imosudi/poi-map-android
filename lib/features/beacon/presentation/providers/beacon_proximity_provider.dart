@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../poi/domain/entities/poi.dart';
+import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
 import '../../domain/beacon_proximity_engine.dart';
 import '../../domain/beacon_proximity_models.dart';
 import '../../domain/ble_scan_models.dart';
@@ -48,6 +50,75 @@ final nearbyBeaconsProvider = Provider<List<BeaconProximityRecord>>((ref) {
       )
       .toList(growable: false);
 });
+
+/// Deduplicated POI match resolved from one or more active nearby beacons.
+final class NearbyPoiMatch {
+  const NearbyPoiMatch({
+    required this.poi,
+    required this.state,
+    required this.beaconIds,
+  });
+
+  final Poi poi;
+  final BeaconProximityState state;
+  final List<String> beaconIds;
+}
+
+/// Resolves active [nearbyBeaconsProvider] records against [poiCatalogueProvider],
+/// deduplicating multiple beacons mapped to the same [Poi.id].
+final nearbyBeaconPoisProvider = Provider<List<NearbyPoiMatch>>((ref) {
+  final nearbyRecords = ref.watch(nearbyBeaconsProvider);
+  final pois = ref.watch(poiCatalogueProvider).asData?.value;
+  if (nearbyRecords.isEmpty || pois == null || pois.isEmpty) {
+    return const <NearbyPoiMatch>[];
+  }
+
+  final poisById = <String, Poi>{for (final poi in pois) poi.id: poi};
+  final grouped = <String, _PoiMatchAccumulator>{};
+
+  for (final record in nearbyRecords) {
+    final poiId = record.poiId;
+    if (poiId == null) continue;
+    final poi = poisById[poiId];
+    if (poi == null) continue;
+
+    final acc = grouped.putIfAbsent(
+      poi.id,
+      () => _PoiMatchAccumulator(poi: poi, state: record.state),
+    );
+    acc.beaconIds.add(record.beaconId);
+    if (record.state == BeaconProximityState.inProximity) {
+      acc.state = BeaconProximityState.inProximity;
+    }
+  }
+
+  return grouped.values
+      .map(
+        (acc) => NearbyPoiMatch(
+          poi: acc.poi,
+          state: acc.state,
+          beaconIds: List<String>.unmodifiable(acc.beaconIds),
+        ),
+      )
+      .toList(growable: false);
+});
+
+/// Map of `poiId -> BeaconProximityState` for O(1) UI lookup.
+final nearbyBeaconPoiStatesProvider =
+    Provider<Map<String, BeaconProximityState>>((ref) {
+      final matches = ref.watch(nearbyBeaconPoisProvider);
+      return Map<String, BeaconProximityState>.unmodifiable({
+        for (final match in matches) match.poi.id: match.state,
+      });
+    });
+
+final class _PoiMatchAccumulator {
+  _PoiMatchAccumulator({required this.poi, required this.state});
+
+  final Poi poi;
+  BeaconProximityState state;
+  final List<String> beaconIds = <String>[];
+}
 
 final class BeaconProximityController
     extends Notifier<BeaconProximityViewState> {
@@ -132,4 +203,3 @@ final class BeaconProximityController
     state = const BeaconProximityViewState();
   }
 }
-

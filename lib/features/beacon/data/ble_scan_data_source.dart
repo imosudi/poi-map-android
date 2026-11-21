@@ -23,26 +23,63 @@ final class FlutterBluePlusBleDataSource implements BleScanDataSource {
   const FlutterBluePlusBleDataSource();
 
   @override
-  Stream<BleAdapterState> get adapterState =>
-      FlutterBluePlus.adapterState.map(_mapAdapterState);
+  Stream<BleAdapterState> get adapterState async* {
+    try {
+      await for (final state in FlutterBluePlus.adapterState) {
+        yield _mapAdapterState(state);
+      }
+    } on UnsupportedError {
+      yield BleAdapterState.unavailable;
+    }
+  }
 
   @override
-  Stream<List<BleRawScanResult>> get scanResults => FlutterBluePlus
-      .onScanResults
-      .map((results) => results.map(_mapScanResult).toList(growable: false));
+  Stream<List<BleRawScanResult>> get scanResults async* {
+    try {
+      await for (final results in FlutterBluePlus.onScanResults) {
+        yield results.map(_mapScanResult).toList(growable: false);
+      }
+    } on UnsupportedError {
+      // Platform does not provide a FlutterBluePlus implementation.
+    }
+  }
 
   @override
-  Stream<bool> get isScanning => FlutterBluePlus.isScanning;
+  Stream<bool> get isScanning async* {
+    try {
+      await for (final scanning in FlutterBluePlus.isScanning) {
+        yield scanning;
+      }
+    } on UnsupportedError {
+      yield false;
+    }
+  }
 
   @override
-  bool get isScanningNow => FlutterBluePlus.isScanningNow;
+  bool get isScanningNow {
+    try {
+      return FlutterBluePlus.isScanningNow;
+    } on UnsupportedError {
+      return false;
+    }
+  }
 
   @override
-  Future<bool> isSupported() => FlutterBluePlus.isSupported;
+  Future<bool> isSupported() async {
+    try {
+      return await FlutterBluePlus.isSupported;
+    } on UnsupportedError {
+      return false;
+    }
+  }
 
   @override
   Future<BleAdapterState> getCurrentAdapterState() async {
-    return _mapAdapterState(FlutterBluePlus.adapterStateNow);
+    try {
+      return _mapAdapterState(FlutterBluePlus.adapterStateNow);
+    } on UnsupportedError {
+      return BleAdapterState.unavailable;
+    }
   }
 
   @override

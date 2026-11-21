@@ -145,4 +145,3 @@ final class BeaconProximityEvaluationResult {
   final Map<String, BeaconProximityRecord> recordsByBeaconId;
   final List<BeaconDiscoveryEvent> triggeredEvents;
 }
-

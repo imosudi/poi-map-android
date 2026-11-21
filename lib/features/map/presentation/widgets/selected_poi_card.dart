@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_palette.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../beacon/domain/beacon_proximity_models.dart';
+import '../../../beacon/presentation/widgets/beacon_proximity_badge.dart';
 import '../../../poi/domain/entities/poi.dart';
 
 /// Compact, dismissible information card for the currently selected [Poi].
@@ -12,6 +14,7 @@ class SelectedPoiCard extends StatelessWidget {
     required this.poi,
     required this.onDismiss,
     this.distanceLabel,
+    this.proximityState,
     this.isSaved = false,
     this.onSave,
     this.onRequestLocation,
@@ -20,6 +23,7 @@ class SelectedPoiCard extends StatelessWidget {
   final Poi poi;
   final VoidCallback onDismiss;
   final String? distanceLabel;
+  final BeaconProximityState? proximityState;
   final bool isSaved;
   final VoidCallback? onSave;
   final VoidCallback? onRequestLocation;
@@ -75,6 +79,11 @@ class SelectedPoiCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ],
+                  if (proximityState == BeaconProximityState.inProximity ||
+                      proximityState == BeaconProximityState.nearby) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    BeaconProximityBadge(state: proximityState!),
                   ],
                   if (poi.address != null && poi.address!.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xs),
