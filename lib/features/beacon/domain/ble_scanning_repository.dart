@@ -37,4 +37,3 @@ abstract interface class BleScanningRepository {
   /// Releases subscriptions and underlying resources.
   Future<void> dispose();
 }
-
