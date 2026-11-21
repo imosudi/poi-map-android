@@ -43,6 +43,24 @@ final class MethodChannelBlePermissionService implements BlePermissionService {
     }
   }
 
+  @override
+  Future<bool> openBluetoothSettings() async {
+    try {
+      final opened = await _channel.invokeMethod<bool>('openBluetoothSettings');
+      return opened ?? false;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException catch (error, stackTrace) {
+      _logger?.warning(
+        'BlePermissions',
+        'Unable to open Bluetooth settings',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return false;
+    }
+  }
+
   Future<BlePermissionStatus> _invokePermissionCall(String method) async {
     try {
       final raw = await _channel.invokeMethod<String>(method);

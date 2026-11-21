@@ -11,6 +11,7 @@ abstract interface class BleScanDataSource {
 
   Future<bool> isSupported();
   Future<BleAdapterState> getCurrentAdapterState();
+  Future<void> turnOnBluetooth();
   Future<void> startScan({
     required List<String> withServices,
     Duration? timeout,
@@ -79,6 +80,15 @@ final class FlutterBluePlusBleDataSource implements BleScanDataSource {
       return _mapAdapterState(FlutterBluePlus.adapterStateNow);
     } on UnsupportedError {
       return BleAdapterState.unavailable;
+    }
+  }
+
+  @override
+  Future<void> turnOnBluetooth() async {
+    try {
+      await FlutterBluePlus.turnOn();
+    } on UnsupportedError {
+      // No-op on platforms without FlutterBluePlus support.
     }
   }
 

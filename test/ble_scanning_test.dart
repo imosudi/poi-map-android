@@ -16,6 +16,7 @@ final class _FakeBlePermissionService implements BlePermissionService {
   BlePermissionStatus requestStatus = BlePermissionStatus.granted;
   int requestCalls = 0;
   int openSettingsCalls = 0;
+  int openBluetoothSettingsCalls = 0;
 
   @override
   Future<BlePermissionStatus> checkPermission() async => checkStatus;
@@ -29,6 +30,12 @@ final class _FakeBlePermissionService implements BlePermissionService {
   @override
   Future<bool> openAppSettings() async {
     openSettingsCalls++;
+    return true;
+  }
+
+  @override
+  Future<bool> openBluetoothSettings() async {
+    openBluetoothSettingsCalls++;
     return true;
   }
 }
@@ -46,6 +53,7 @@ final class _FakeBleScanDataSource implements BleScanDataSource {
   bool scanning = false;
   int startScanCalls = 0;
   int stopScanCalls = 0;
+  int turnOnCalls = 0;
   List<String> lastServiceFilter = const <String>[];
   Object? startScanError;
   Duration? startScanDelay;
@@ -67,6 +75,13 @@ final class _FakeBleScanDataSource implements BleScanDataSource {
 
   @override
   Future<BleAdapterState> getCurrentAdapterState() async => currentAdapterState;
+
+  @override
+  Future<void> turnOnBluetooth() async {
+    turnOnCalls++;
+    currentAdapterState = BleAdapterState.on;
+    adapterController.add(BleAdapterState.on);
+  }
 
   @override
   Future<void> startScan({

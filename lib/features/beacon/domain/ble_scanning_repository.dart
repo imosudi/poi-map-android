@@ -26,6 +26,12 @@ abstract interface class BleScanningRepository {
   /// Opens the application settings screen to grant permanently denied permissions.
   Future<bool> openAppSettings();
 
+  /// Prompts the user to turn on the device Bluetooth adapter.
+  Future<void> turnOnBluetooth();
+
+  /// Opens the system Bluetooth settings screen to switch Bluetooth on or off.
+  Future<bool> openBluetoothSettings();
+
   /// Starts a foreground BLE scan filtered to [PoiBeaconProtocolConstants.serviceUuid].
   ///
   /// Duplicate concurrent calls are coalesced so only one scan runs at a time.

@@ -143,6 +143,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
                       onStartScan: bleScanController.startScanning,
                       onStopScan: bleScanController.stopScanning,
                       onOpenSettings: bleScanController.openAppSettings,
+                      onToggleBluetooth: bleScanController.toggleBluetooth,
                     ),
                     if (nearbyMatches.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.md),

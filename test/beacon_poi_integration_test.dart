@@ -90,11 +90,19 @@ final class _FakeRegistryDataSource implements BeaconRegistryLocalDataSource {
 final class _FakeBlePermissionService implements BlePermissionService {
   BlePermissionStatus status = BlePermissionStatus.granted;
 
+  int openBluetoothSettingsCalls = 0;
+
   @override
   Future<BlePermissionStatus> checkPermission() async => status;
 
   @override
   Future<bool> openAppSettings() async => true;
+
+  @override
+  Future<bool> openBluetoothSettings() async {
+    openBluetoothSettingsCalls++;
+    return true;
+  }
 
   @override
   Future<BlePermissionStatus> requestPermission() async => status;
@@ -111,6 +119,8 @@ final class _FakeBleScanDataSource implements BleScanDataSource {
   bool supported = true;
   BleAdapterState adapter = BleAdapterState.on;
   bool scanning = false;
+  int turnOnCalls = 0;
+  Completer<void>? pendingTurnOn;
 
   @override
   Stream<BleAdapterState> get adapterState => _adapterController.stream;
@@ -126,6 +136,16 @@ final class _FakeBleScanDataSource implements BleScanDataSource {
 
   @override
   Future<BleAdapterState> getCurrentAdapterState() async => adapter;
+
+  @override
+  Future<void> turnOnBluetooth() async {
+    turnOnCalls++;
+    if (pendingTurnOn != null) {
+      await pendingTurnOn!.future;
+    }
+    adapter = BleAdapterState.on;
+    _adapterController.add(BleAdapterState.on);
+  }
 
   @override
   Future<bool> isSupported() async => supported;
@@ -279,6 +299,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Scan'), findsOneWidget);
 
+      // User toggles Bluetooth switch off (opens Android Bluetooth settings).
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(permissionService.openBluetoothSettingsCalls, 1);
+
       await scanDataSource.dispose();
     },
   );
@@ -330,9 +355,23 @@ void main() {
         findsOneWidget,
       );
 
+      // Tapping the Bluetooth switch shows rolling spinner deadband until complete.
+      final turnOnCompleter = Completer<void>();
+      scanDataSource.pendingTurnOn = turnOnCompleter;
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(Switch), findsNothing);
+
+      turnOnCompleter.complete();
+      await tester.pumpAndSettle();
+      expect(scanDataSource.turnOnCalls, 1);
+      expect(find.byType(Switch), findsOneWidget);
+      expect(find.text('Scan'), findsOneWidget);
+
       // Now BLE unsupported.
       scanDataSource.supported = false;
-      await tester.tap(find.text('Retry'));
+      await tester.tap(find.text('Scan'));
       await tester.pumpAndSettle();
       expect(
         find.text('BLE beacon discovery is unavailable on this device.'),

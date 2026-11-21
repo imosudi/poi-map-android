@@ -81,6 +81,9 @@ final class _FakeBlePermissionService implements BlePermissionService {
   Future<bool> openAppSettings() async => true;
 
   @override
+  Future<bool> openBluetoothSettings() async => true;
+
+  @override
   Future<BlePermissionStatus> requestPermission() async =>
       BlePermissionStatus.granted;
 }
@@ -108,6 +111,9 @@ final class _FakeBleScanDataSource implements BleScanDataSource {
 
   @override
   Future<BleAdapterState> getCurrentAdapterState() async => BleAdapterState.on;
+
+  @override
+  Future<void> turnOnBluetooth() async {}
 
   @override
   Future<bool> isSupported() async => true;

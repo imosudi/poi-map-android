@@ -36,6 +36,7 @@ class MainActivity : FlutterActivity() {
                 "checkBlePermissions" -> result.success(evaluateBlePermissionStatus())
                 "requestBlePermissions" -> requestBlePermissions(result)
                 "openAppSettings" -> result.success(openApplicationSettings())
+                "openBluetoothSettings" -> result.success(openBluetoothSettings())
                 else -> result.notImplemented()
             }
         }
@@ -112,6 +113,17 @@ class MainActivity : FlutterActivity() {
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.fromParts("package", packageName, null),
             )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun openBluetoothSettings(): Boolean {
+        return try {
+            val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
             true

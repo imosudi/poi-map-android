@@ -70,6 +70,25 @@ final class BleScanningRepositoryImpl implements BleScanningRepository {
   Future<bool> openAppSettings() => _permissionService.openAppSettings();
 
   @override
+  Future<void> turnOnBluetooth() async {
+    try {
+      await _dataSource.turnOnBluetooth();
+    } catch (error, stackTrace) {
+      _logger?.warning(
+        'BleScan',
+        'Failed to turn on Bluetooth directly; opening Bluetooth settings',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      await _permissionService.openBluetoothSettings();
+    }
+  }
+
+  @override
+  Future<bool> openBluetoothSettings() =>
+      _permissionService.openBluetoothSettings();
+
+  @override
   Future<void> startForegroundScan({Duration? timeout}) {
     if (_disposed) {
       return Future<void>.error(
