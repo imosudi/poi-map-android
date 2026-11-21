@@ -7,6 +7,7 @@ import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/widgets/poi_list_item.dart';
+import '../../../visited/presentation/screens/visited_history_screen.dart';
 import '../providers/favourites_provider.dart';
 
 /// Displays the user's persistently saved Vienna places.
@@ -94,6 +95,17 @@ class FavouritesScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Visited history',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const VisitedHistoryScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.history_rounded),
                 ),
               ],
             ),

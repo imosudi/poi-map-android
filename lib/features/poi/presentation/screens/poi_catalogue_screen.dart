@@ -13,6 +13,7 @@ import '../../../beacon/presentation/providers/beacon_proximity_provider.dart';
 import '../../../beacon/presentation/providers/ble_scan_provider.dart';
 import '../../../beacon/presentation/widgets/beacon_scan_status_bar.dart';
 import '../../../favourites/presentation/providers/favourites_provider.dart';
+import '../../../visited/presentation/providers/visited_places_provider.dart';
 import '../../domain/entities/poi.dart';
 import '../../domain/services/poi_filter.dart';
 import '../providers/poi_catalogue_provider.dart';
@@ -55,6 +56,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
     final bleScanState = ref.watch(bleScanControllerProvider);
     final nearbyMatches = ref.watch(nearbyBeaconPoisProvider);
     final nearbyStates = ref.watch(nearbyBeaconPoiStatesProvider);
+    final visitedByPoiId = ref.watch(visitedPlacesByPoiIdProvider);
 
     final catalogueController = ref.read(poiCatalogueProvider.notifier);
     final filterController = ref.read(poiFilterCriteriaProvider.notifier);
@@ -158,6 +160,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
                         PoiListItem(
                           poi: match.poi,
                           isSaved: savedPoiIds.contains(match.poi.id),
+                          isVisited: visitedByPoiId.containsKey(match.poi.id),
                           proximityState: match.state,
                           onSave: () => favouritesController.savePoi(match.poi),
                         ),
@@ -174,6 +177,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
               hasActiveFilters: criteria.hasActiveFilters,
               savedPoiIds: savedPoiIds,
               nearbyStates: nearbyStates,
+              visitedPoiIds: visitedByPoiId.keys.toSet(),
               onSavePoi: favouritesController.savePoi,
               onLoadMore: pageController.loadNextPage,
               onRetry: catalogueController.refresh,
@@ -209,6 +213,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
     required bool hasActiveFilters,
     required Set<String> savedPoiIds,
     required Map<String, BeaconProximityState> nearbyStates,
+    required Set<String> visitedPoiIds,
     required ValueChanged<Poi> onSavePoi,
     required VoidCallback onLoadMore,
     required VoidCallback onRetry,
@@ -274,6 +279,7 @@ class _PoiCatalogueScreenState extends ConsumerState<PoiCatalogueScreen> {
             return PoiListItem(
               poi: poi,
               isSaved: savedPoiIds.contains(poi.id),
+              isVisited: visitedPoiIds.contains(poi.id),
               proximityState: nearbyStates[poi.id],
               onSave: () => onSavePoi(poi),
             );

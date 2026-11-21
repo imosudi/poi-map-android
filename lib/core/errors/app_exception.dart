@@ -39,6 +39,11 @@ final class BeaconRegistryException extends AppException {
   const BeaconRegistryException(super.message, {super.cause});
 }
 
+/// Raised when reading, recording, or clearing visited places fails.
+final class VisitedPlacesException extends AppException {
+  const VisitedPlacesException(super.message, {super.cause});
+}
+
 /// Fallback exception for unexpected runtime errors.
 final class UnexpectedException extends AppException {
   const UnexpectedException([

@@ -13,6 +13,7 @@ class PoiListItem extends StatelessWidget {
     super.key,
     required this.poi,
     this.isSaved = false,
+    this.isVisited = false,
     this.proximityState,
     this.onSave,
     this.onRemove,
@@ -21,6 +22,7 @@ class PoiListItem extends StatelessWidget {
 
   final Poi poi;
   final bool isSaved;
+  final bool isVisited;
   final BeaconProximityState? proximityState;
   final VoidCallback? onSave;
   final VoidCallback? onRemove;
@@ -105,9 +107,50 @@ class PoiListItem extends StatelessWidget {
                       ),
                     ],
                     if (proximityState == BeaconProximityState.inProximity ||
-                        proximityState == BeaconProximityState.nearby) ...[
+                        proximityState == BeaconProximityState.nearby ||
+                        isVisited) ...[
                       const SizedBox(height: AppSpacing.xs),
-                      BeaconProximityBadge(state: proximityState!),
+                      Wrap(
+                        spacing: AppSpacing.xs,
+                        runSpacing: AppSpacing.xs,
+                        children: [
+                          if (proximityState ==
+                                  BeaconProximityState.inProximity ||
+                              proximityState == BeaconProximityState.nearby)
+                            BeaconProximityBadge(state: proximityState!),
+                          if (isVisited)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.tertiaryContainer,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline_rounded,
+                                    size: 13,
+                                    color:
+                                        theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                  const SizedBox(width: AppSpacing.xs),
+                                  Text(
+                                    'Visited',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color:
+                                          theme.colorScheme.onTertiaryContainer,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ],
                 ),
