@@ -6,6 +6,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../beacon/domain/beacon_proximity_models.dart';
 import '../../../beacon/presentation/widgets/beacon_proximity_badge.dart';
 import '../../../poi/domain/entities/poi.dart';
+import '../../../visited/domain/entities/visited_place.dart';
 
 /// Compact, dismissible information card for the currently selected [Poi].
 class SelectedPoiCard extends StatelessWidget {
@@ -15,6 +16,7 @@ class SelectedPoiCard extends StatelessWidget {
     required this.onDismiss,
     this.distanceLabel,
     this.proximityState,
+    this.visitedPlace,
     this.isSaved = false,
     this.onSave,
     this.onRequestLocation,
@@ -24,6 +26,7 @@ class SelectedPoiCard extends StatelessWidget {
   final VoidCallback onDismiss;
   final String? distanceLabel;
   final BeaconProximityState? proximityState;
+  final VisitedPlace? visitedPlace;
   final bool isSaved;
   final VoidCallback? onSave;
   final VoidCallback? onRequestLocation;
@@ -81,9 +84,51 @@ class SelectedPoiCard extends StatelessWidget {
                     ),
                   ],
                   if (proximityState == BeaconProximityState.inProximity ||
-                      proximityState == BeaconProximityState.nearby) ...[
+                      proximityState == BeaconProximityState.nearby ||
+                      visitedPlace != null) ...[
                     const SizedBox(height: AppSpacing.xs),
-                    BeaconProximityBadge(state: proximityState!),
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      runSpacing: AppSpacing.xs,
+                      children: [
+                        if (proximityState ==
+                                BeaconProximityState.inProximity ||
+                            proximityState == BeaconProximityState.nearby)
+                          BeaconProximityBadge(state: proximityState!),
+                        if (visitedPlace != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.sm,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.tertiaryContainer,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline_rounded,
+                                  size: 13,
+                                  color: theme.colorScheme.onTertiaryContainer,
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                Text(
+                                  visitedPlace!.visitCount > 1
+                                      ? 'Visited (${visitedPlace!.visitCount}x)'
+                                      : 'Visited',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color:
+                                        theme.colorScheme.onTertiaryContainer,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                   if (poi.address != null && poi.address!.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xs),

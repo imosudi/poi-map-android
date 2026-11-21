@@ -13,6 +13,7 @@ import '../../../beacon/presentation/widgets/beacon_scan_status_bar.dart';
 import '../../../favourites/presentation/providers/favourites_provider.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
+import '../../../visited/presentation/providers/visited_places_provider.dart';
 import '../../domain/user_location.dart';
 import '../providers/map_providers.dart';
 import '../widgets/poi_map_view.dart';
@@ -75,6 +76,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final bleScanState = ref.watch(bleScanControllerProvider);
     final bleScanController = ref.read(bleScanControllerProvider.notifier);
     final nearbyPoiStates = ref.watch(nearbyBeaconPoiStatesProvider);
+    final visitedByPoiId = ref.watch(visitedPlacesByPoiIdProvider);
 
     ref.listen<UserLocationState>(userLocationProvider, (previous, next) {
       final message = next.feedbackMessage;
@@ -190,6 +192,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     selectedPoiProximityState: selectedPoi == null
                         ? null
                         : nearbyPoiStates[selectedPoi.id],
+                    selectedPoiVisitedPlace: selectedPoi == null
+                        ? null
+                        : visitedByPoiId[selectedPoi.id],
                     savedPoiIds: savedPoiIds,
                     nearbyBeaconPoiIds: nearbyPoiStates.keys.toSet(),
                     markerIcons: markerIcons,
