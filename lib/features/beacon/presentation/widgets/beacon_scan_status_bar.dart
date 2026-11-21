@@ -121,7 +121,7 @@ class BeaconScanStatusBar extends StatelessWidget {
       case BleScanSessionStatus.idle:
         return (
           Icons.bluetooth_rounded,
-          'Scan for nearby ESP32-S3 POI beacons',
+          'Scan for nearby POI Explorer beacons',
           'Scan',
           onStartScan,
         );
