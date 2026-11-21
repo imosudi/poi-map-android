@@ -7,6 +7,9 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_view.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import '../../../../core/widgets/copyright_footer.dart';
+import '../../../beacon/presentation/providers/beacon_proximity_provider.dart';
+import '../../../beacon/presentation/providers/ble_scan_provider.dart';
+import '../../../beacon/presentation/widgets/beacon_scan_status_bar.dart';
 import '../../../favourites/presentation/providers/favourites_provider.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
@@ -69,6 +72,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final selectionController = ref.read(selectedPoiIdProvider.notifier);
     final locationController = ref.read(userLocationProvider.notifier);
     final favouritesController = ref.read(favouritesProvider.notifier);
+    final bleScanState = ref.watch(bleScanControllerProvider);
+    final bleScanController = ref.read(bleScanControllerProvider.notifier);
+    final nearbyPoiStates = ref.watch(nearbyBeaconPoiStatesProvider);
 
     ref.listen<UserLocationState>(userLocationProvider, (previous, next) {
       final message = next.feedbackMessage;
@@ -137,6 +143,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
           const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.sm,
+            ),
+            child: BeaconScanStatusBar(
+              scanState: bleScanState,
+              nearbyPoiCount: nearbyPoiStates.length,
+              onStartScan: bleScanController.startScanning,
+              onStopScan: bleScanController.stopScanning,
+              onOpenSettings: bleScanController.openAppSettings,
+            ),
+          ),
           Expanded(
             child: apiKeyState.when(
               loading: () => const AppLoadingView(
@@ -165,7 +186,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     pois: pois,
                     selectedPoi: selectedPoi,
                     selectedPoiDistanceLabel: selectedDistanceLabel,
+                    selectedPoiProximityState: selectedPoi == null
+                        ? null
+                        : nearbyPoiStates[selectedPoi.id],
                     savedPoiIds: savedPoiIds,
+                    nearbyBeaconPoiIds: nearbyPoiStates.keys.toSet(),
                     markerIcons: markerIcons,
                     userLocation: locationState.location,
                     userLocationIcon: userLocationIcon,

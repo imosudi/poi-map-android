@@ -6,6 +6,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_view.dart';
+import '../../../beacon/domain/beacon_proximity_models.dart';
 import '../../../poi/domain/entities/poi.dart';
 import '../../domain/map_camera_calculator.dart';
 import '../../domain/user_location.dart';
@@ -30,7 +31,9 @@ class PoiMapView extends StatefulWidget {
     required this.pois,
     this.selectedPoi,
     this.selectedPoiDistanceLabel,
+    this.selectedPoiProximityState,
     this.savedPoiIds = const {},
+    this.nearbyBeaconPoiIds = const {},
     this.markerIcons = const {},
     this.userLocation,
     this.userLocationIcon,
@@ -46,7 +49,9 @@ class PoiMapView extends StatefulWidget {
   final List<Poi> pois;
   final Poi? selectedPoi;
   final String? selectedPoiDistanceLabel;
+  final BeaconProximityState? selectedPoiProximityState;
   final Set<String> savedPoiIds;
+  final Set<String> nearbyBeaconPoiIds;
   final Map<PoiMarkerCategory, BitmapDescriptor> markerIcons;
   final UserLocation? userLocation;
   final BitmapDescriptor? userLocationIcon;
@@ -218,6 +223,7 @@ class _PoiMapViewState extends State<PoiMapView> {
       pois: widget.pois,
       selectedPoiId: widget.selectedPoi?.id,
       savedPoiIds: widget.savedPoiIds,
+      nearbyBeaconPoiIds: widget.nearbyBeaconPoiIds,
       iconCache: widget.markerIcons,
       onSelect: widget.onPoiSelected,
     );
@@ -343,6 +349,7 @@ class _PoiMapViewState extends State<PoiMapView> {
               key: ValueKey(selectedPoi.id),
               poi: selectedPoi,
               distanceLabel: widget.selectedPoiDistanceLabel,
+              proximityState: widget.selectedPoiProximityState,
               isSaved: widget.savedPoiIds.contains(selectedPoi.id),
               onSave: widget.onSavePoi == null
                   ? null

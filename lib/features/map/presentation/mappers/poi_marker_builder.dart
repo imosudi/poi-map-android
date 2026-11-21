@@ -13,6 +13,7 @@ abstract final class PoiMarkerBuilder {
     required Iterable<Poi> pois,
     String? selectedPoiId,
     Set<String> savedPoiIds = const {},
+    Set<String> nearbyBeaconPoiIds = const {},
     Map<PoiMarkerCategory, BitmapDescriptor> iconCache = const {},
     void Function(Poi poi)? onSelect,
   }) {
@@ -29,14 +30,24 @@ abstract final class PoiMarkerBuilder {
 
       final isSelected = poi.id == selectedPoiId;
       final isSaved = savedPoiIds.contains(poi.id);
+      final isNearbyBeacon = nearbyBeaconPoiIds.contains(poi.id);
       final category = isSaved
           ? PoiMarkerCategory.favourite
           : PoiMarkerStyleResolver.resolve(poi.category);
       final icon =
           iconCache[category] ??
           BitmapDescriptor.defaultMarkerWithHue(
-            isSelected ? BitmapDescriptor.hueAzure : BitmapDescriptor.hueRed,
+            isSelected
+                ? BitmapDescriptor.hueAzure
+                : isNearbyBeacon
+                ? BitmapDescriptor.hueViolet
+                : BitmapDescriptor.hueRed,
           );
+      final snippet = isNearbyBeacon
+          ? (poi.address != null && poi.address!.isNotEmpty
+                ? '${poi.address!} • Nearby via beacon'
+                : 'Nearby via beacon')
+          : poi.address;
 
       markers.add(
         Marker(
@@ -44,8 +55,10 @@ abstract final class PoiMarkerBuilder {
           position: LatLng(poi.latitude, poi.longitude),
           icon: icon,
           anchor: pinAnchor,
-          zIndexInt: isSelected ? 1 : 0,
-          infoWindow: InfoWindow(title: poi.name, snippet: poi.address),
+          zIndexInt: isSelected
+              ? (nearbyBeaconPoiIds.isEmpty ? 1 : 2)
+              : (isNearbyBeacon ? 1 : 0),
+          infoWindow: InfoWindow(title: poi.name, snippet: snippet),
           onTap: onSelect == null ? null : () => onSelect(poi),
         ),
       );

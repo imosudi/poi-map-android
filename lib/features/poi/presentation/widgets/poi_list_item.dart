@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_palette.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/constants/app_assets.dart';
+import '../../../beacon/domain/beacon_proximity_models.dart';
+import '../../../beacon/presentation/widgets/beacon_proximity_badge.dart';
 import '../../domain/entities/poi.dart';
 
 /// Reusable card representing a single Point of Interest in the catalogue.
@@ -11,6 +13,7 @@ class PoiListItem extends StatelessWidget {
     super.key,
     required this.poi,
     this.isSaved = false,
+    this.proximityState,
     this.onSave,
     this.onRemove,
     this.onTap,
@@ -18,6 +21,7 @@ class PoiListItem extends StatelessWidget {
 
   final Poi poi;
   final bool isSaved;
+  final BeaconProximityState? proximityState;
   final VoidCallback? onSave;
   final VoidCallback? onRemove;
   final VoidCallback? onTap;
@@ -99,6 +103,11 @@ class PoiListItem extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ],
+                    if (proximityState == BeaconProximityState.inProximity ||
+                        proximityState == BeaconProximityState.nearby) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      BeaconProximityBadge(state: proximityState!),
                     ],
                   ],
                 ),

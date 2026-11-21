@@ -1,0 +1,81 @@
+{
+  "protocol": "POI-BEACON",
+  "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+  "vectors": [
+    {
+      "name": "valid_v1_proximity",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "01010000000000000001",
+      "expectedValid": true,
+      "expectedVersion": 1,
+      "expectedFlags": 1,
+      "expectedBeaconId": "0000000000000001"
+    },
+    {
+      "name": "valid_v1_usb_and_proximity",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "0103a1b2c3d4e5f60708",
+      "expectedValid": true,
+      "expectedVersion": 1,
+      "expectedFlags": 3,
+      "expectedBeaconId": "a1b2c3d4e5f60708"
+    },
+    {
+      "name": "incorrect_service_uuid",
+      "serviceUuid": "0000feaa-0000-1000-8000-00805f9b34fb",
+      "payloadHex": "01010000000000000001",
+      "expectedValid": false,
+      "expectedRejection": "unrelatedAdvertisement"
+    },
+    {
+      "name": "invalid_payload_length_oversized",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "01010000000000000001ff",
+      "expectedValid": false,
+      "expectedRejection": "invalidPayloadLength"
+    },
+    {
+      "name": "truncated_data",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "010100000000000000",
+      "expectedValid": false,
+      "expectedRejection": "invalidPayloadLength"
+    },
+    {
+      "name": "unsupported_version_2",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "02010000000000000001",
+      "expectedValid": false,
+      "expectedRejection": "unsupportedVersion"
+    },
+    {
+      "name": "invalid_version_zero",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "00010000000000000001",
+      "expectedValid": false,
+      "expectedRejection": "invalidVersion"
+    },
+    {
+      "name": "invalid_flags_reserved_bits",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "01800000000000000001",
+      "expectedValid": false,
+      "expectedRejection": "invalidFlags"
+    },
+    {
+      "name": "invalid_beacon_id_all_zero",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "01010000000000000000",
+      "expectedValid": false,
+      "expectedRejection": "invalidBeaconId"
+    },
+    {
+      "name": "invalid_beacon_id_all_ff",
+      "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+      "payloadHex": "0101ffffffffffffffff",
+      "expectedValid": false,
+      "expectedRejection": "invalidBeaconId"
+    }
+  ]
+}
+

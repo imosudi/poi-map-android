@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "beacons": [
+    {
+      "beaconId": "5649450000000001",
+      "poiId": "SEHENSWUERDIGOGD.643871",
+      "label": "Ankeruhr - Main Square Beacon",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000002",
+      "poiId": "SEHENSWUERDIGOGD.643871",
+      "label": "Ankeruhr - Arcade Entrance Beacon",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000003",
+      "poiId": "SEHENSWUERDIGOGD.643872",
+      "label": "Secondary Sight Beacon",
+      "enabled": true
+    }
+  ]
+}
+
