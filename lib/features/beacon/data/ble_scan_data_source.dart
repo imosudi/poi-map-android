@@ -97,12 +97,13 @@ final class FlutterBluePlusBleDataSource implements BleScanDataSource {
     required List<String> withServices,
     Duration? timeout,
   }) {
-    final serviceGuids = withServices
-        .map((uuid) => Guid(uuid))
+    final serviceDataFilters = withServices
+        .map((uuid) => ServiceDataFilter(Guid(uuid)))
         .toList(growable: false);
     return FlutterBluePlus.startScan(
-      withServices: serviceGuids,
+      withServiceData: serviceDataFilters,
       timeout: timeout,
+      continuousUpdates: true,
       androidScanMode: AndroidScanMode.lowLatency,
     );
   }
