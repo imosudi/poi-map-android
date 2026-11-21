@@ -34,6 +34,11 @@ final class BleException extends AppException {
   const BleException(super.message, {super.cause});
 }
 
+/// Raised when loading, validating, or saving the beacon registry fails.
+final class BeaconRegistryException extends AppException {
+  const BeaconRegistryException(super.message, {super.cause});
+}
+
 /// Fallback exception for unexpected runtime errors.
 final class UnexpectedException extends AppException {
   const UnexpectedException([
