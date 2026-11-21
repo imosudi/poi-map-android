@@ -1,0 +1,47 @@
+menu "POI-BEACON Configuration"
+
+    config POI_BEACON_DEFAULT_ID_HEX
+        string "Fallback Development Beacon ID (16 hex chars)"
+        default "5649450000000001"
+        help
+            8-byte (16 lowercase hex character) beacon identifier used only when
+            NVS has not yet been provisioned. Do not commit production IDs here.
+
+    config POI_BEACON_ADV_INTERVAL_MS
+        int "BLE Advertising Interval (ms)"
+        range 20 10240
+        default 200
+        help
+            Non-connectable BLE advertising interval in milliseconds.
+
+    config POI_BEACON_TX_POWER_DBM
+        int "BLE Transmit Power (dBm)"
+        range -12 9
+        default 3
+        help
+            BLE transmit power in dBm (-12, -9, -6, -3, 0, 3, 6, or 9).
+
+    config POI_BEACON_USB_POWERED
+        bool "Beacon is USB-powered"
+        default y
+        help
+            Sets the USB-powered protocol flag (0x02) in POI-BEACON v1.
+
+    config POI_BEACON_STATUS_LED_GPIO
+        int "Onboard WS2812 RGB LED primary GPIO (-1 to disable)"
+        range -1 48
+        default 38
+        help
+            Primary GPIO connected to the onboard WS2812 RGB LED (GPIO 38 on
+            ESP32-S3-DevKitC-1 v1.1).
+
+    config POI_BEACON_STATUS_LED_ALT_GPIO
+        int "Onboard WS2812 RGB LED secondary GPIO (-1 to disable)"
+        range -1 48
+        default 48
+        help
+            Secondary GPIO connected to the onboard WS2812 RGB LED (GPIO 48 on
+            ESP32-S3-DevKitC-1 v1.0). Set to -1 if unused.
+
+endmenu
+

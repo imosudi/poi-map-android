@@ -1,0 +1,14 @@
+{
+  "firmwareVersion": "1.0.0",
+  "protocolVersion": 1,
+  "serviceUuid": "4a28ca13-0038-4846-9e65-eb29bda8dc87",
+  "beaconId": "5649450000000001",
+  "flags": {
+    "proximityActive": true,
+    "usbPowered": true
+  },
+  "advertisingIntervalMs": 200,
+  "txPowerDbm": 3,
+  "notes": "Sample USB-powered pilot configuration. Provision production beaconId via NVS or Kconfig override."
+}
+
