@@ -82,4 +82,6 @@ pio device monitor --port /dev/ttyUSB0 --baud 115200
 
 ## Licence
 
-See [LICENSE](LICENSE) for details.
+This Android application and its associated hardware firmware are published under the BSD 3-Clause Licence. See [LICENSE](LICENSE) for full terms.
+
+Copyright (c) 2026, Isiaka Mosudi, FHTW. All rights reserved.
