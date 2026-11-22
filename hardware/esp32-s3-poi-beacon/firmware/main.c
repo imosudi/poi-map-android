@@ -129,6 +129,14 @@ static esp_power_level_t map_tx_power_dbm(int8_t dbm) {
   return ESP_PWR_LVL_P9;
 }
 
+#ifdef POI_BEACON_ENV_ID_HEX
+#define POI_BEACON_SELECTED_ID_HEX POI_BEACON_ENV_ID_HEX
+#elif defined(POI_BEACON_BUILD_ID_HEX)
+#define POI_BEACON_SELECTED_ID_HEX POI_BEACON_BUILD_ID_HEX
+#else
+#define POI_BEACON_SELECTED_ID_HEX CONFIG_POI_BEACON_DEFAULT_ID_HEX
+#endif
+
 static void load_config_with_nvs_fallback(void) {
   memset(&s_beacon_config, 0, sizeof(s_beacon_config));
   s_beacon_config.protocol_version = POI_BEACON_PROTOCOL_VERSION;
@@ -140,10 +148,10 @@ static void load_config_with_nvs_fallback(void) {
   s_beacon_config.tx_power_dbm = (int8_t)CONFIG_POI_BEACON_TX_POWER_DBM;
 
   poi_beacon_status_t parse_status = poi_beacon_parse_hex_id(
-      CONFIG_POI_BEACON_DEFAULT_ID_HEX, s_beacon_config.beacon_id);
+      POI_BEACON_SELECTED_ID_HEX, s_beacon_config.beacon_id);
   if (parse_status != POI_BEACON_OK) {
     ESP_LOGE(TAG,
-             "Invalid Kconfig fallback beacon ID (%s); advertising disabled "
+             "Invalid build beacon ID (%s); advertising disabled "
              "until valid ID is provisioned.",
              poi_beacon_status_str(parse_status));
   }
@@ -156,6 +164,13 @@ static void load_config_with_nvs_fallback(void) {
     return;
   }
 
+#if defined(POI_BEACON_OVERRIDE_NVS_ON_BOOT) && POI_BEACON_OVERRIDE_NVS_ON_BOOT
+  if (parse_status == POI_BEACON_OK) {
+    nvs_set_blob(nvs, POI_BEACON_NVS_KEY_ID, s_beacon_config.beacon_id,
+                 POI_BEACON_ID_SIZE);
+    nvs_commit(nvs);
+  }
+#else
   uint8_t stored_id[POI_BEACON_ID_SIZE];
   size_t id_len = sizeof(stored_id);
   if (nvs_get_blob(nvs, POI_BEACON_NVS_KEY_ID, stored_id, &id_len) == ESP_OK &&
@@ -167,6 +182,7 @@ static void load_config_with_nvs_fallback(void) {
                  POI_BEACON_ID_SIZE);
     nvs_commit(nvs);
   }
+#endif
 
   uint8_t stored_flags = 0;
   if (nvs_get_u8(nvs, POI_BEACON_NVS_KEY_FLAGS, &stored_flags) == ESP_OK) {

@@ -5,6 +5,7 @@ final class BeaconRegistryEntry {
   const BeaconRegistryEntry({
     required this.beaconId,
     required this.poiId,
+    this.poiName = '',
     this.label = '',
     this.enabled = true,
   });
@@ -15,6 +16,9 @@ final class BeaconRegistryEntry {
   /// Target Vienna OGD POI identifier (e.g., `SEHENSWUERDIGOGD.643871`).
   final String poiId;
 
+  /// Optional exact POI name used as a fallback if OGD `OBJECTID`s rotate.
+  final String poiName;
+
   /// Optional human-readable placement label.
   final String label;
 
@@ -24,12 +28,14 @@ final class BeaconRegistryEntry {
   BeaconRegistryEntry copyWith({
     String? beaconId,
     String? poiId,
+    String? poiName,
     String? label,
     bool? enabled,
   }) {
     return BeaconRegistryEntry(
       beaconId: beaconId ?? this.beaconId,
       poiId: poiId ?? this.poiId,
+      poiName: poiName ?? this.poiName,
       label: label ?? this.label,
       enabled: enabled ?? this.enabled,
     );
@@ -41,12 +47,13 @@ final class BeaconRegistryEntry {
     return other is BeaconRegistryEntry &&
         other.beaconId == beaconId &&
         other.poiId == poiId &&
+        other.poiName == poiName &&
         other.label == label &&
         other.enabled == enabled;
   }
 
   @override
-  int get hashCode => Object.hash(beaconId, poiId, label, enabled);
+  int get hashCode => Object.hash(beaconId, poiId, poiName, label, enabled);
 }
 
 /// Validates and normalises [BeaconRegistryEntry] records.

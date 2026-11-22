@@ -96,16 +96,26 @@ class FavouritesScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Visited history',
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const VisitedHistoryScreen(),
+                Tooltip(
+                  message: 'Visited history',
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const VisitedHistoryScreen(),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
                       ),
-                    );
-                  },
-                  icon: const Icon(Icons.history_rounded),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    icon: const Icon(Icons.history_rounded, size: 18),
+                    label: const Text('Visited'),
+                  ),
                 ),
               ],
             ),

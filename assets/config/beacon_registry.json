@@ -3,22 +3,472 @@
   "beacons": [
     {
       "beaconId": "5649450000000001",
-      "poiId": "SEHENSWUERDIGOGD.643871",
+      "poiId": "SEHENSWUERDIGOGD.644715",
+      "poiName": "Ankeruhr",
       "label": "Ankeruhr - Main Square Beacon",
       "enabled": true
     },
     {
       "beaconId": "5649450000000002",
-      "poiId": "SEHENSWUERDIGOGD.643871",
+      "poiId": "SEHENSWUERDIGOGD.644715",
+      "poiName": "Ankeruhr",
       "label": "Ankeruhr - Arcade Entrance Beacon",
       "enabled": true
     },
     {
       "beaconId": "5649450000000003",
       "poiId": "SEHENSWUERDIGOGD.643872",
+      "poiName": "Peterskirche",
       "label": "Secondary Sight Beacon",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000004",
+      "poiId": "CUSTOM_TEST.ROETZERGASSE_73",
+      "poiName": "Rötzergasse 73 (Test Residence)",
+      "label": "Rötzergasse 73 (Test Residence)",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000005",
+      "poiId": "CUSTOM_TEST.FHTW_WIEN",
+      "poiName": "FHTW — University of Applied Sciences Technikum Wien",
+      "label": "FHTW — University of Applied Sciences Technikum Wien",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000006",
+      "poiId": "SEHENSWUERDIGOGD.644727",
+      "poiName": "Albertina",
+      "label": "Albertina",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000007",
+      "poiId": "SEHENSWUERDIGOGD.644739",
+      "poiName": "Augustinerkirche",
+      "label": "Augustinerkirche",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000008",
+      "poiId": "SEHENSWUERDIGOGD.644740",
+      "poiName": "Burgtheater",
+      "label": "Burgtheater",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000009",
+      "poiId": "SEHENSWUERDIGOGD.644741",
+      "poiName": "Donauturm",
+      "label": "Donauturm",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000a",
+      "poiId": "SEHENSWUERDIGOGD.644716",
+      "poiName": "Friedhof St. Marx",
+      "label": "Friedhof St. Marx",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000b",
+      "poiId": "SEHENSWUERDIGOGD.644742",
+      "poiName": "Gloriette",
+      "label": "Gloriette",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000c",
+      "poiId": "SEHENSWUERDIGOGD.644728",
+      "poiName": "Haus der Musik",
+      "label": "Haus der Musik",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000d",
+      "poiId": "SEHENSWUERDIGOGD.644729",
+      "poiName": "Haus des Meeres",
+      "label": "Haus des Meeres",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000e",
+      "poiId": "SEHENSWUERDIGOGD.644773",
+      "poiName": "Hermesvilla Wien Museum",
+      "label": "Hermesvilla Wien Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000000f",
+      "poiId": "SEHENSWUERDIGOGD.644743",
+      "poiName": "Hofburg",
+      "label": "Hofburg",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000010",
+      "poiId": "SEHENSWUERDIGOGD.644744",
+      "poiName": "Islamisches Zentrum Wien / Moschee",
+      "label": "Islamisches Zentrum Wien / Moschee",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000011",
+      "poiId": "SEHENSWUERDIGOGD.644730",
+      "poiName": "Jüdisches Museum der Stadt Wien",
+      "label": "Jüdisches Museum der Stadt Wien",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000012",
+      "poiId": "SEHENSWUERDIGOGD.644731",
+      "poiName": "Kaisergruft (Kapuzinergruft)",
+      "label": "Kaisergruft (Kapuzinergruft)",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000013",
+      "poiId": "SEHENSWUERDIGOGD.644745",
+      "poiName": "Karlskirche",
+      "label": "Karlskirche",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000014",
+      "poiId": "SEHENSWUERDIGOGD.644756",
+      "poiName": "Kirche am Steinhof",
+      "label": "Kirche am Steinhof",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000015",
+      "poiId": "SEHENSWUERDIGOGD.644717",
+      "poiName": "Kuffner-Sternwarte",
+      "label": "Kuffner-Sternwarte",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000016",
+      "poiId": "SEHENSWUERDIGOGD.644732",
+      "poiName": "KunstHausWien - Friedensreich Hundertwasser",
+      "label": "KunstHausWien - Friedensreich Hundertwasser",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000017",
+      "poiId": "SEHENSWUERDIGOGD.644766",
+      "poiName": "Kunsthistorisches Museum",
+      "label": "Kunsthistorisches Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000018",
+      "poiId": "SEHENSWUERDIGOGD.644718",
+      "poiName": "Künstlerhaus",
+      "label": "Künstlerhaus",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000019",
+      "poiId": "SEHENSWUERDIGOGD.644767",
+      "poiName": "Leopold Museum",
+      "label": "Leopold Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001a",
+      "poiId": "SEHENSWUERDIGOGD.644734",
+      "poiName": "MAK - Österreichisches Museum für angewandte Kunst",
+      "label": "MAK - Österreichisches Museum für angewandte Kunst",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001b",
+      "poiId": "SEHENSWUERDIGOGD.644757",
+      "poiName": "Michaelerkirche",
+      "label": "Michaelerkirche",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001c",
+      "poiId": "SEHENSWUERDIGOGD.644735",
+      "poiName": "Mozarthaus Vienna \"Figarohaus\"",
+      "label": "Mozarthaus Vienna \"Figarohaus\"",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001d",
+      "poiId": "SEHENSWUERDIGOGD.644768",
+      "poiName": "MUMOK Museum Moderner Kunst Stiftung Ludwig Wien",
+      "label": "MUMOK Museum Moderner Kunst Stiftung Ludwig Wien",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001e",
+      "poiId": "SEHENSWUERDIGOGD.644736",
+      "poiName": "MuseumsQuartier Wien",
+      "label": "MuseumsQuartier Wien",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000001f",
+      "poiId": "SEHENSWUERDIGOGD.644746",
+      "poiName": "Musikverein",
+      "label": "Musikverein",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000020",
+      "poiId": "SEHENSWUERDIGOGD.644769",
+      "poiName": "Naturhistorisches Museum",
+      "label": "Naturhistorisches Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000021",
+      "poiId": "SEHENSWUERDIGOGD.644737",
+      "poiName": "Oberes Belvedere",
+      "label": "Oberes Belvedere",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000022",
+      "poiId": "SEHENSWUERDIGOGD.644774",
+      "poiName": "Otto Wagner Pavillon",
+      "label": "Otto Wagner Pavillon",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000023",
+      "poiId": "SEHENSWUERDIGOGD.644775",
+      "poiName": "Otto Wagner-Stadtpavillon Hietzing",
+      "label": "Otto Wagner-Stadtpavillon Hietzing",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000024",
+      "poiId": "SEHENSWUERDIGOGD.644752",
+      "poiName": "Palais Epstein",
+      "label": "Palais Epstein",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000025",
+      "poiId": "SEHENSWUERDIGOGD.644733",
+      "poiName": "Palais Liechtenstein",
+      "label": "Palais Liechtenstein",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000026",
+      "poiId": "SEHENSWUERDIGOGD.644758",
+      "poiName": "Palmenhaus",
+      "label": "Palmenhaus",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000027",
+      "poiId": "SEHENSWUERDIGOGD.644719",
+      "poiName": "Parlament",
+      "label": "Parlament",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000028",
+      "poiId": "SEHENSWUERDIGOGD.644720",
+      "poiName": "Planetarium",
+      "label": "Planetarium",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000029",
+      "poiId": "SEHENSWUERDIGOGD.644721",
+      "poiName": "Rathaus",
+      "label": "Rathaus",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002a",
+      "poiId": "SEHENSWUERDIGOGD.644759",
+      "poiName": "Riesenrad",
+      "label": "Riesenrad",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002b",
+      "poiId": "SEHENSWUERDIGOGD.644770",
+      "poiName": "Schatzkammer",
+      "label": "Schatzkammer",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002c",
+      "poiId": "SEHENSWUERDIGOGD.644760",
+      "poiName": "Schloss Schönbrunn",
+      "label": "Schloss Schönbrunn",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002d",
+      "poiId": "SEHENSWUERDIGOGD.644776",
+      "poiName": "Schlosspark Schönbrunn",
+      "label": "Schlosspark Schönbrunn",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002e",
+      "poiId": "SEHENSWUERDIGOGD.644761",
+      "poiName": "Schmetterlinghaus",
+      "label": "Schmetterlinghaus",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000002f",
+      "poiId": "SEHENSWUERDIGOGD.644762",
+      "poiName": "Schönbrunn - Irrgarten",
+      "label": "Schönbrunn - Irrgarten",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000030",
+      "poiId": "SEHENSWUERDIGOGD.644747",
+      "poiName": "Secession",
+      "label": "Secession",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000031",
+      "poiId": "SEHENSWUERDIGOGD.644748",
+      "poiName": "Sigmund Freud Museum",
+      "label": "Sigmund Freud Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000032",
+      "poiId": "SEHENSWUERDIGOGD.644771",
+      "poiName": "Sisi Museum",
+      "label": "Sisi Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000033",
+      "poiId": "SEHENSWUERDIGOGD.644722",
+      "poiName": "Spanische Hofreitschule",
+      "label": "Spanische Hofreitschule",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000034",
+      "poiId": "SEHENSWUERDIGOGD.644763",
+      "poiName": "Stephansdom",
+      "label": "Stephansdom",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000035",
+      "poiId": "SEHENSWUERDIGOGD.644723",
+      "poiName": "Synagoge",
+      "label": "Synagoge",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000036",
+      "poiId": "SEHENSWUERDIGOGD.644749",
+      "poiName": "Technisches Museum",
+      "label": "Technisches Museum",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000037",
+      "poiId": "SEHENSWUERDIGOGD.644764",
+      "poiName": "Tiergarten Schönbrunn",
+      "label": "Tiergarten Schönbrunn",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000038",
+      "poiId": "SEHENSWUERDIGOGD.644753",
+      "poiName": "Universität Wien",
+      "label": "Universität Wien",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000039",
+      "poiId": "SEHENSWUERDIGOGD.644765",
+      "poiName": "UNO-City",
+      "label": "UNO-City",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003a",
+      "poiId": "SEHENSWUERDIGOGD.644754",
+      "poiName": "Unteres Belvedere",
+      "label": "Unteres Belvedere",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003b",
+      "poiId": "SEHENSWUERDIGOGD.644724",
+      "poiName": "Urania Sternwarte",
+      "label": "Urania Sternwarte",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003c",
+      "poiId": "SEHENSWUERDIGOGD.644772",
+      "poiName": "Votivkirche",
+      "label": "Votivkirche",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003d",
+      "poiId": "SEHENSWUERDIGOGD.644777",
+      "poiName": "Wagenburg Schönbrunn",
+      "label": "Wagenburg Schönbrunn",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003e",
+      "poiId": "SEHENSWUERDIGOGD.644751",
+      "poiName": "Wagner:Werk Museum Postsparkasse",
+      "label": "Wagner:Werk Museum Postsparkasse",
+      "enabled": true
+    },
+    {
+      "beaconId": "564945000000003f",
+      "poiId": "SEHENSWUERDIGOGD.644750",
+      "poiName": "Wien Museum Karlsplatz",
+      "label": "Wien Museum Karlsplatz",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000040",
+      "poiId": "SEHENSWUERDIGOGD.644725",
+      "poiName": "Wiener Staatsoper",
+      "label": "Wiener Staatsoper",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000041",
+      "poiId": "SEHENSWUERDIGOGD.644755",
+      "poiName": "Wotrubakirche",
+      "label": "Wotrubakirche",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000042",
+      "poiId": "SEHENSWUERDIGOGD.644726",
+      "poiName": "Zentralfriedhof (Ehrengräber)",
+      "label": "Zentralfriedhof (Ehrengräber)",
+      "enabled": true
+    },
+    {
+      "beaconId": "5649450000000043",
+      "poiId": "SEHENSWUERDIGOGD.644738",
+      "poiName": "Österreichische Nationalbibliothek",
+      "label": "Österreichische Nationalbibliothek",
       "enabled": true
     }
   ]
 }
-

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../domain/repositories/poi_repository.dart';
+import 'datasources/custom_test_pois.dart';
 import 'datasources/vienna_ogd_api_service.dart';
 import 'repositories/remote_poi_repository.dart';
 
@@ -18,5 +19,6 @@ final poiRepositoryProvider = Provider<PoiRepository>((ref) {
   return RemotePoiRepository(
     apiService: ref.watch(viennaOgdApiServiceProvider),
     logger: ref.watch(appLoggerProvider),
+    extraPois: CustomTestPois.entries,
   );
 });

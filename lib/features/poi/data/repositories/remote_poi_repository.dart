@@ -9,11 +9,13 @@ final class RemotePoiRepository implements PoiRepository {
   const RemotePoiRepository({
     required ViennaOgdApiService apiService,
     required AppLogger logger,
+    this.extraPois = const <Poi>[],
   }) : _apiService = apiService,
        _logger = logger;
 
   final ViennaOgdApiService _apiService;
   final AppLogger _logger;
+  final List<Poi> extraPois;
 
   @override
   Future<List<Poi>> fetchPois({CancellationToken? cancelToken}) async {
@@ -25,6 +27,15 @@ final class RemotePoiRepository implements PoiRepository {
         context: {'skippedCount': collection.skippedFeatureCount},
       );
     }
-    return collection.toDomainList();
+    final remotePois = collection.toDomainList();
+    if (extraPois.isEmpty) {
+      return remotePois;
+    }
+    final existingIds = <String>{for (final poi in remotePois) poi.id};
+    return List<Poi>.unmodifiable([
+      ...remotePois,
+      for (final extra in extraPois)
+        if (!existingIds.contains(extra.id)) extra,
+    ]);
   }
 }
