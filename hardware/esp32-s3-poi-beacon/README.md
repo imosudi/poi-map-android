@@ -107,7 +107,7 @@ gcc -std=c99 -Wall -Wextra -Werror -Iinclude firmware/poi_beacon_protocol.c test
 3. In **Vienna POI Explorer**, tap **Scan** on **Explore** or **Map** and verify `Ankeruhr` (`SEHENSWUERDIGOGD.643871`) is detected via `BeaconRegistry`.
 
 ### Troubleshooting
-- **Serial port busy or permission denied**: Ensure no other monitor holds `/dev/ttyUSB0` and your user belongs to `dialout`.
+- **Serial port busy or permission denied**: Ensure no other monitor holds `/dev/ttyUSB0` and the current account belongs to `dialout`.
 - **Upload fails to sync**: Hold the `BOOT` button on the `ESP32-S3-DevKitC-1`, press `RST`, then release `BOOT` and retry upload.
 - **Not visible in Android app**: Verify Bluetooth is enabled, `BLUETOOTH_SCAN` permission is granted, and the `beaconId` is enabled in `assets/config/beacon_registry.json`.
 

@@ -31,13 +31,25 @@ A Flutter-based Android application for discovering Points of Interest (POIs) in
 ## Prerequisites & Configuration
 
 - Flutter SDK `3.32.7+`, Dart `3.8.1+`, Android SDK (`ANDROID_HOME`), and JDK 11+.
-- Set your Google Maps API key in `android/local.properties`:
+- Set `MAPS_API_KEY` in `android/local.properties`:
 
 ```properties
-MAPS_API_KEY=your_google_maps_api_key
+MAPS_API_KEY=google_maps_api_key
 ```
 
 ## Running, Testing & Building
+
+### 1. Fork and Clone
+
+1. Fork `imosudi/poi-map-android` on GitHub.
+2. Clone the fork and enter the project directory:
+
+```bash
+git clone https://github.com/<username>/poi-map-android.git
+cd poi-map-android
+```
+
+### 2. Android Application
 
 ```bash
 flutter pub get
@@ -48,11 +60,25 @@ flutter run
 flutter build apk --release
 ```
 
+### 3. ESP32-S3 BLE Beacon Firmware
+
+See [ESP32-S3 Firmware README](hardware/esp32-s3-poi-beacon/README.md) for hardware baseline and provisioning details.
+
+```bash
+cd hardware/esp32-s3-poi-beacon
+
+# Host C protocol unit tests
+gcc -std=c99 -Wall -Wextra -Werror -Iinclude firmware/poi_beacon_protocol.c test/test_poi_beacon_protocol.c -o /tmp/test_poi_beacon_protocol && /tmp/test_poi_beacon_protocol
+
+# Build and flash via PlatformIO (ESP-IDF)
+pio run --target upload --upload-port /dev/ttyUSB0
+pio device monitor --port /dev/ttyUSB0 --baud 115200
+```
+
 ## Known Limitations
 
 - `ogdwien:SEHENSWUERDIGOGD` does not provide a category attribute, so sight categories are derived from names via `PoiCategoryClassifier`.
 - Release builds currently use the debug signing config in `android/app/build.gradle.kts` until a production keystore is configured.
-- `integration_test/` is not yet populated; end-to-end flows are verified via offline widget tests.
 
 ## Licence
 
