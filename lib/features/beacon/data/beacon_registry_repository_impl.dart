@@ -132,6 +132,7 @@ final class BeaconRegistryRepositoryImpl implements BeaconRegistryRepository {
       }
       final beaconId = item['beaconId'];
       final poiId = item['poiId'];
+      final poiName = item['poiName'];
       final label = item['label'];
       final enabled = item['enabled'];
 
@@ -145,6 +146,7 @@ final class BeaconRegistryRepositoryImpl implements BeaconRegistryRepository {
         BeaconRegistryEntry(
           beaconId: beaconId,
           poiId: poiId,
+          poiName: poiName is String ? poiName : '',
           label: label is String ? label : '',
           enabled: enabled is bool ? enabled : true,
         ),
@@ -162,6 +164,7 @@ final class BeaconRegistryRepositoryImpl implements BeaconRegistryRepository {
           {
             'beaconId': entry.beaconId,
             'poiId': entry.poiId,
+            if (entry.poiName.isNotEmpty) 'poiName': entry.poiName,
             'label': entry.label,
             'enabled': entry.enabled,
           },

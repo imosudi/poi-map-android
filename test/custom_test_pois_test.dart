@@ -22,4 +22,3 @@ void main() {
     expect(Poi.isValidCoordinate(fhtw.latitude, fhtw.longitude), isTrue);
   });
 }
-

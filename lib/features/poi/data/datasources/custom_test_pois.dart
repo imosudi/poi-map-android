@@ -23,4 +23,3 @@ abstract final class CustomTestPois {
     ),
   ]);
 }
-

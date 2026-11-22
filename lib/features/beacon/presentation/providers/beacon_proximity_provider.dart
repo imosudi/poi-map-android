@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../poi/domain/entities/poi.dart';
@@ -126,19 +128,37 @@ final class BeaconProximityController
   late BeaconProximityEngine _engine;
   final Map<String, DateTime> _lastProcessedTimestampByDevice =
       <String, DateTime>{};
+  Timer? _timeoutSweepTimer;
 
   @override
   BeaconProximityViewState build() {
     final config = ref.watch(beaconProximityConfigProvider);
     _engine = BeaconProximityEngine(config: config);
     _lastProcessedTimestampByDevice.clear();
+    _timeoutSweepTimer?.cancel();
+    _timeoutSweepTimer = null;
+
+    ref.onDispose(() {
+      _timeoutSweepTimer?.cancel();
+      _timeoutSweepTimer = null;
+    });
 
     // Eagerly load the beacon registry and re-evaluate any buffered scan
-    // results once it becomes available.
+    // results once it (or the POI catalogue) becomes available.
     ref.listen<AsyncValue<BeaconRegistry>>(beaconRegistryProvider, (
       previous,
       next,
     ) {
+      if (next.hasValue && !(previous?.hasValue ?? false)) {
+        final buffered = ref.read(bleScanResultsProvider);
+        if (buffered.isNotEmpty) {
+          _lastProcessedTimestampByDevice.clear();
+          _processRawResults(buffered);
+        }
+      }
+    });
+
+    ref.listen<AsyncValue<List<Poi>>>(poiCatalogueProvider, (previous, next) {
       if (next.hasValue && !(previous?.hasValue ?? false)) {
         final buffered = ref.read(bleScanResultsProvider);
         if (buffered.isNotEmpty) {
@@ -161,6 +181,13 @@ final class BeaconProximityController
   void _processRawResults(List<BleRawScanResult> rawResults) {
     final parser = ref.read(poiBeaconParserProvider);
     final registry = ref.read(beaconRegistryProvider).asData?.value;
+    final pois = ref.read(poiCatalogueProvider).asData?.value;
+    final poisById = pois == null
+        ? const <String, Poi>{}
+        : <String, Poi>{for (final p in pois) p.id: p};
+    final poisByName = pois == null
+        ? const <String, Poi>{}
+        : <String, Poi>{for (final p in pois) p.name.trim().toLowerCase(): p};
     final newEvents = <BeaconDiscoveryEvent>[];
 
     for (final raw in rawResults) {
@@ -179,9 +206,18 @@ final class BeaconProximityController
         continue;
       }
 
+      String? resolvedPoiId = entry?.poiId;
+      if (entry != null &&
+          pois != null &&
+          !poisById.containsKey(entry.poiId) &&
+          entry.poiName.trim().isNotEmpty) {
+        resolvedPoiId =
+            poisByName[entry.poiName.trim().toLowerCase()]?.id ?? entry.poiId;
+      }
+
       final evaluation = _engine.evaluateObservation(
         beaconId: adv.beaconId,
-        poiId: entry?.poiId,
+        poiId: resolvedPoiId,
         rssi: adv.rssi,
         observedAt: adv.observedAt,
       );
@@ -201,6 +237,16 @@ final class BeaconProximityController
               ...newEvents,
             ]),
     );
+    _ensureTimeoutSweepTimer();
+  }
+
+  void _ensureTimeoutSweepTimer() {
+    if (_timeoutSweepTimer != null || _engine.records.isEmpty) {
+      return;
+    }
+    _timeoutSweepTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      sweepTimeouts();
+    });
   }
 
   /// Evaluates temporary advertisement loss and lost timeouts at [now].
@@ -210,10 +256,21 @@ final class BeaconProximityController
       recordsByBeaconId: evaluation.recordsByBeaconId,
       discoveryEvents: state.discoveryEvents,
     );
+    final hasActive = evaluation.recordsByBeaconId.values.any(
+      (r) =>
+          r.state == BeaconProximityState.inProximity ||
+          r.state == BeaconProximityState.nearby,
+    );
+    if (!hasActive) {
+      _timeoutSweepTimer?.cancel();
+      _timeoutSweepTimer = null;
+    }
   }
 
   /// Resets all tracked proximity state.
   void reset() {
+    _timeoutSweepTimer?.cancel();
+    _timeoutSweepTimer = null;
     _engine.clear();
     _lastProcessedTimestampByDevice.clear();
     state = const BeaconProximityViewState();

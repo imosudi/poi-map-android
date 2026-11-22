@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/config/app_config.dart';
 import '../core/errors/error_handler.dart';
 import '../core/logging/app_logger.dart';
+import '../features/beacon/data/beacon_registry_local_data_source.dart';
 import 'app.dart';
 
 /// Observes Riverpod provider failures and forwards them to [ErrorHandler].
@@ -54,6 +56,21 @@ Future<void> bootstrap() async {
     errorHandler.handle(error, stackTrace: stackTrace, tag: 'PlatformError');
     return true;
   };
+
+  // Clear cached beacon registry on startup so bundled asset updates take
+  // effect immediately without wiping saved_places_v1 or visited_places_v1.
+  try {
+    await SharedPreferencesAsync().remove(
+      SharedPreferencesBeaconRegistryDataSource.storageKey,
+    );
+  } catch (error, stackTrace) {
+    logger.warning(
+      'Bootstrap',
+      'Unable to clear cached beacon registry on startup',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
 
   logger.info(
     'Bootstrap',
