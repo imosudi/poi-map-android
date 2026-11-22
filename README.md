@@ -20,13 +20,11 @@ A Flutter-based Android application for discovering Points of Interest (POIs) in
 
 - `lib/app/`: Application bootstrap, Riverpod root providers, named routing (`AppRouter`), navigation shell (`AppShell`), and Material 3 theme tokens.
 - `lib/core/`: Environment configuration, structured redacting logger, centralised `ErrorHandler` / `AppException`, `DioFactory`, `CancellationToken`, and shared state views.
-- `lib/features/poi/`, `lib/features/map/`, `lib/features/favourites/`: Layered `domain/`, `data/`, and `presentation/` modules with no cross-feature coupling.
-
-See [Architecture](docs/architecture.md) and [Application Features](docs/application-features.md) for details.
+- `lib/features/poi/`, `lib/features/map/`, `lib/features/favourites/`, `lib/features/beacon/`, `lib/features/visited/`: Layered `domain/`, `data/`, and `presentation/` modules with no cross-feature coupling.
 
 ## Data Source, Branding & Licensing
 
-- **Data Source**: City of Vienna Open Government Data WFS (`ogdwien:SEHENSWUERDIGOGD`, EPSG:4326 GeoJSON, CC BY 4.0). See [Data Source](docs/data-source.md).
+- **Data Source**: City of Vienna Open Government Data WFS (`ogdwien:SEHENSWUERDIGOGD`, EPSG:4326 GeoJSON, CC BY 4.0).
 - **Branding**: Custom icons, category markers, and banners are stored in `assets/branding/`, `assets/icons/`, `assets/markers/`, and `assets/ui/` with a `#FAF7F2` / `#14264A` / `#D10A29` Material 3 palette.
 - **Permissions**: Requests `INTERNET`, `ACCESS_FINE_LOCATION`, and `ACCESS_COARSE_LOCATION` for foreground positioning only (no background location tracking).
 
@@ -39,8 +37,6 @@ See [Architecture](docs/architecture.md) and [Application Features](docs/applica
 MAPS_API_KEY=your_google_maps_api_key
 ```
 
-See [Development Guide](docs/development-guide.md) and [Android Configuration](docs/android-configuration.md).
-
 ## Running, Testing & Building
 
 ```bash
@@ -51,8 +47,6 @@ flutter test
 flutter run
 flutter build apk --release
 ```
-
-See [Testing Guide](docs/testing-guide.md) and [Release Guide](docs/release-guide.md).
 
 ## Known Limitations
 
