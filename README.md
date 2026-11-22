@@ -27,13 +27,13 @@ See [Architecture](docs/architecture.md) and [Application Features](docs/applica
 ## Data Source, Branding & Licensing
 
 - **Data Source**: City of Vienna Open Government Data WFS (`ogdwien:SEHENSWUERDIGOGD`, EPSG:4326 GeoJSON, CC BY 4.0). See [Data Source](docs/data-source.md).
-- **Branding**: Uses supplied Vienna POI Explorer assets in `assets/branding/`, `assets/icons/`, `assets/markers/`, and `assets/ui/` with a `#FAF7F2` / `#14264A` / `#D10A29` Material 3 palette. See [Branding Guide](docs/branding-guide.md).
+- **Branding**: Custom icons, category markers, and banners are stored in `assets/branding/`, `assets/icons/`, `assets/markers/`, and `assets/ui/` with a `#FAF7F2` / `#14264A` / `#D10A29` Material 3 palette.
 - **Permissions**: Requests `INTERNET`, `ACCESS_FINE_LOCATION`, and `ACCESS_COARSE_LOCATION` for foreground positioning only (no background location tracking).
 
 ## Prerequisites & Configuration
 
 - Flutter SDK `3.32.7+`, Dart `3.8.1+`, Android SDK (`ANDROID_HOME`), and JDK 11+.
-- Add your Google Maps API key to `android/local.properties` (excluded from Git):
+- Set your Google Maps API key in `android/local.properties`:
 
 ```properties
 MAPS_API_KEY=your_google_maps_api_key
