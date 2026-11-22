@@ -4,6 +4,7 @@ import '../../../poi/domain/entities/poi.dart';
 import '../../../poi/presentation/providers/poi_catalogue_provider.dart';
 import '../../domain/beacon_proximity_engine.dart';
 import '../../domain/beacon_proximity_models.dart';
+import '../../domain/beacon_registry_models.dart';
 import '../../domain/ble_scan_models.dart';
 import 'beacon_registry_provider.dart';
 import 'ble_scan_provider.dart';
@@ -131,6 +132,21 @@ final class BeaconProximityController
     final config = ref.watch(beaconProximityConfigProvider);
     _engine = BeaconProximityEngine(config: config);
     _lastProcessedTimestampByDevice.clear();
+
+    // Eagerly load the beacon registry and re-evaluate any buffered scan
+    // results once it becomes available.
+    ref.listen<AsyncValue<BeaconRegistry>>(beaconRegistryProvider, (
+      previous,
+      next,
+    ) {
+      if (next.hasValue && !(previous?.hasValue ?? false)) {
+        final buffered = ref.read(bleScanResultsProvider);
+        if (buffered.isNotEmpty) {
+          _lastProcessedTimestampByDevice.clear();
+          _processRawResults(buffered);
+        }
+      }
+    });
 
     ref.listen<List<BleRawScanResult>>(bleScanResultsProvider, (
       previous,
